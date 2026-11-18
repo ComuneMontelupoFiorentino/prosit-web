@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="../../../assets/favicon/favicon.ico">
+
+<title>Registro Control Room</title>
+
+
+<link rel="stylesheet" href="../../assets/prosit.css">
+<link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+
+
+<div class="container-fluid p-3">
+
+    <div class="page">
+
+        <!-- HEADER FISSO -->
+        <div class="header">
+
+            <!-- TITOLO -->
+            <div class="d-flex align-items-center mb-4 gap-3">
+                <h3 class="mb-0">REGISTRO CONTROLLI VIDEOSORVEGLIANZA</h3>
+
+                <button class="btn btn-xs btn-secondary " id="reload-button">
+                    <i class="icon-refresh icon-white"></i>
+                </button>
+
+                <button class="btn btn-primary" id="submit-control">
+                    Registra Controllo
+                </button>
+            </div>
+
+            <!-- INFO UTENTE -->
+            <div class="row mb-4">
+                <div class="col-md-4 mb-2">
+                    <label for="date-log-field">Data</label>
+                    <input id="date-log-field" type="text" class="form-control" value="" readonly>
+                </div>
+
+                <div class="col-md-4 mb-2">
+                    <label for="worker-log-field">Operatore</label>
+                    <input id="worker-log-field" type="text" class="form-control" value="" readonly>
+                </div>
+
+                <div class="col-md-4 mb-2">
+                    <label for="status-log-field">Dichiarazione</label>
+                    <select id="status-log-field" class="form-select" required>
+                        <option selected="" value="">Seleziona stato</option>
+                        <optgroup label="Nessun problema">
+                            <option value="Tutto funzionante">Tutto funzionante</option>
+                        </optgroup>
+                            <optgroup label="Problemi rilevati">
+                            <option value="Nuovo problema rilevato">Nuovo problema rilevato</option>
+                            <option value="Problema già segnalato (ancora presente)">Problema già segnalato (ancora presente)</option>
+                        </optgroup>
+                    </select><br>
+                    <small id="status-help">
+                    </small>
+                </div>
+            </div>
+            <!-- FILTRI -->
+            <div class="row mb-4">
+                <!-- Campo di ricerca -->
+                <div class="col-md-4 mb-2">
+                    <!-- Label di spaziatura per allineare l'input con l'altro blocco -->
+                    <label class="form-label invisible" style="display: block;">Cerca</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="icon-search"></i>
+                        </span>
+                        <input type="text" id="filter-id" class="form-control" placeholder="Cerca ID telecamera...">
+                        <button class="btn btn-outline-secondary" type="button" id="clear-search">
+                            <i class="icon-remove"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Select Apparecchi -->
+                <div class="col-md-4 mb-2">
+                    <label for="status-tlc" class="form-label">Apparecchi</label>
+                    <select id="status-tlc" class="form-select">
+                        <option selected="" value="">Tutti</option>
+                        <option value="1">funzionanti</option>
+                        <option value="2">segnalati</option>
+                        <option value="3">nuovi problemi</option>
+                    </select>
+                    <small id="filter-help" class="d-block mt-1">
+                    </small>
+                </div>
+            </div>
+            <div >
+                <label for="status-tlc">Problema</label><br>
+                <span class="badge bg-success bg-legend"> </span>Non rilevato
+                <span class="badge bg-warning bg-legend"> </span>In fase di inserimento
+                <span class="badge bg-danger bg-legend"> </span>Più di una segnalazione
+                <!--
+                <span class="badge bg-primary bg-legend bg-accettato" > </span>Stato ticket "Accettato"
+                <span class="badge bg-primary bg-legend bg-convalidato" > </span>Stato ticket "Convalidato"
+                <span class="badge bg-primary bg-legend bg-assegnato" > </span>Stato ticket "Assegnato"
+                <span class="badge bg-primary bg-legend bg-presoInCarico" > </span>Stato ticket "Preso in carico"
+                <span class="badge bg-primary bg-legend bg-programmato" > </span>Stato ticket "Programmato"
+                <span class="badge bg-primary bg-legend bg-eseguito" > </span>Stato ticket "Eseguito"
+                <span class="badge bg-primary bg-legend bg-sospeso" > </span>Stato ticket "Sospeso"
+                -->
+            </div>
+
+        </div>
+        <!-- /HEADER -->
+
+        <!-- GRID SCROLLABILE -->
+        <div class="scroll-area">
+
+            <div class="row" id="tvcc-container">
+            </div>
+
+        </div>
+        <!-- /GRID SCROLLABILE -->
+
+    </div>
+
+    <!-- modale Bootstrap 2 (scheda segnalazione) -->
+    <div class="modal modal-xl hide fade" id="issueModal" tabindex="-1" role="dialog" aria-labelledby="issueModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <h3 class="modal-title" id="issueModalLabel">Dettaglio segnalazione</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Chiudi">&times;</button>
+        </div>
+        <div class="modal-body p-0">
+            <iframe id="issueFrame" class="issue-frame" title="Dettaglio segnalazione"></iframe>
+        </div>
+    </div>
+    <!-- pannello laterale = modale Bootstrap 2 con classe p-side (tema Prosit) -->
+    <div class="modal p-side hide fade" tabindex="-1" id="sidePanel" role="dialog" aria-labelledby="sidePanelLabel" aria-hidden="true">
+        <div class="modal-header">
+            <h3 class="modal-title" id="sidePanelLabel">Dettaglio Telecamera</h3>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Chiudi">&times;</button>
+        </div>
+        <div class="modal-body">
+            <div id="sidePanelContent"></div>
+        </div>
+    </div>
+
+</div>
+
+<!-- jQuery e Bootstrap 2 di Lizmap (gli stessi della mappa) -->
+<script src="../../../assets/js/jquery/jquery-3.5.1.min.js"></script>
+<script src="../../../assets/js/jquery/jquery-migrate-3.3.1.min.js"></script>
+<script src="../../../assets/js/bootstrap.min.js"></script>
+<script src="../../assets/prosit-api-v2.js"></script>
+<script src="app.js?v=5"></script>
+
+</body>
+</html>

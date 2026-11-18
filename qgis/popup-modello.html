@@ -1,0 +1,43 @@
+<!--
+  MODELLO DI POPUP QGIS — linguaggio comune Prosit
+  ================================================
+  Dove: QGIS > Proprieta' del layer > Suggerimenti (HTML), con il plugin Lizmap
+  impostato su "Popup: QGIS HTML maptip". Lizmap applica il CSS comune da solo.
+
+  Regole:
+  - tutto dentro <div class="p-card"> (le classi non toccano il resto di Lizmap);
+  - campi vuoti: non serve CASE, una riga con p-value vuoto si nasconde da sola;
+  - colore della testata: data-status = stato in minuscolo con i trattini
+    ("Presa in carico" -> presa-in-carico): espressione qui sotto;
+  - niente <script> ne' <style>: Lizmap li toglie (DOMPurify);
+  - le relazioni 1:n (cronologia, allegati, comunicazioni) non si fanno in QGIS:
+    si incorpora la scheda esterna con <div class="p-embed" data-src="...">.
+  Catalogo di tutti i componenti con il codice: /lizmap/prosit/schede/catalogo.html
+-->
+<div class="p-card">
+  <div class="p-head" data-status="[% regexp_replace(lower("STATO"), '[^a-z0-9]+', '-') %]">
+    <div class="p-toolbar">
+      <span class="p-title">[% "CODICE" %]</span>
+    </div>
+    <span class="p-status">[% "STATO" %]</span>
+  </div>
+  <div class="p-body">
+    <p class="p-meta">Aggiornato il [% format_date("DATA_AGGIORNAMENTO", 'dd/MM/yyyy') %]</p>
+    <h1>[% "TITOLO" %]</h1>
+
+    <details class="p-section" open>
+      <summary>Dati principali</summary>
+      <div class="p-field"><span class="p-label">Descrizione</span><span class="p-value">[% "DESCRIZIONE" %]</span></div>
+      <div class="p-field"><span class="p-label">Data</span><span class="p-value">[% format_date("DATA", 'dd/MM/yyyy') %]</span></div>
+      <div class="p-field"><span class="p-label">Stato</span><span class="p-value"><span class="label label-success">[% "STATO" %]</span></span></div>
+    </details>
+
+    <!-- scheda esterna (relazioni 1:n), creata da Prosit dentro il popup.
+         &parti=... mostra solo quelle sezioni (data-part della scheda), senza ripetere la testata -->
+    <div class="p-embed" data-title="Dettaglio" data-src="/lizmap/prosit/schede/NOME.html?id=[% "ID" %]"></div>
+
+    <div class="p-actions">
+      <a class="btn btn-small btn-primary" target="_blank" href="/lizmap/prosit/schede/NOME.html?id=[% "ID" %]">Apri la scheda completa</a>
+    </div>
+  </div>
+</div>

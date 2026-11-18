@@ -1,0 +1,209 @@
+/* ==========================================================================
+   PROSIT — LINGUAGGIO COMUNE DELLE SCHEDE
+   --------------------------------------------------------------------------
+   Le stesse classi valgono in due posti:
+     A. popup creati in QGIS (HTML del suggerimento/popup), mostrati DENTRO la
+        pagina di Lizmap: questo file viene caricato in tutte le mappe dal file
+        <progetti>/media/js/default/prosit-lizmap.js (scritto da install.sh);
+     B. schede "esterne" di Prosit (/lizmap/prosit/schede/...), che lo caricano
+        tramite assets/prosit.css.
+   In entrambi i casi sotto c'e' la Bootstrap 2 di Lizmap: le classi Bootstrap 2
+   (btn, label label-success, table...) funzionano ovunque e si possono usare.
+
+   Regole di questo file:
+     - ogni regola sta dentro .p-card o usa classi p-*: non tocca l'interfaccia di Lizmap;
+     - si adatta alla LARGHEZZA DEL CONTENITORE (container query), non dello schermo:
+       pannello popup stretto o pagina intera, stesso codice;
+     - niente virgolette doppie e niente url() relativi a Lizmap: cosi' funziona
+       anche se un giorno venisse servito dal meccanismo dei temi di Lizmap.
+   Catalogo con esempi da copiare: /lizmap/prosit/schede/catalogo.html
+   ========================================================================== */
+
+@font-face { font-family: 'Titillium Web'; font-style: normal; font-weight: 400; font-display: swap; src: url(vendor/titillium/titillium-web-latin-400-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Titillium Web'; font-style: normal; font-weight: 600; font-display: swap; src: url(vendor/titillium/titillium-web-latin-600-normal.woff2) format('woff2'); }
+@font-face { font-family: 'Titillium Web'; font-style: normal; font-weight: 700; font-display: swap; src: url(vendor/titillium/titillium-web-latin-700-normal.woff2) format('woff2'); }
+
+/* ---------- gettoni (anche su :root, per le celle colorate fuori dalle schede) ---------- */
+:root, .p-card {
+  --p-font: 'Titillium Web', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --p-text: #1c2024;
+  --p-muted: #5d7083;
+  --p-border: #dee2e6;
+  --p-surface: #ffffff;
+  --p-surface-2: #fafbfc;
+  --p-primary: #0066cc;
+  --p-primary-strong: #004d99;
+  --p-heading: #005ca9;
+  --p-danger: #cc334d;
+  --p-warning: #995c00;
+  --p-success: #008055;
+  --p-neutral: #5d7083;
+  --st-accettata: #8a8a8a;
+  --st-convalidata: #c90002;
+  --st-assegnata: #ff3b02;
+  --st-presa-in-carico: #ff8102;
+  --st-programmata: #e0c200;
+  --st-eseguita: #8fb81f;
+  --st-completata: #1ea711;
+  --st-verificata-e-chiusa: #2e7d32;
+  --st-sospesa: #0066cc;
+  --st-annullata: #757575;
+}
+
+/* ---------- contenitore ---------- */
+.p-card {
+  container-type: inline-size;
+  box-sizing: border-box;
+  font-family: var(--p-font); font-size: 15px; line-height: 1.45; color: var(--p-text);
+  background: var(--p-surface); border: 1px solid var(--p-border); border-radius: 10px;
+  overflow: hidden; margin: 0 0 .75rem; text-align: left;
+}
+.p-card *, .p-card *::before, .p-card *::after { box-sizing: border-box; }
+.p-card a { color: var(--p-primary); }
+.p-card a:hover { color: var(--p-primary-strong); }
+
+/* ---------- testata con colore di stato: <div class="p-head" data-status="presa-in-carico"> ---------- */
+.p-head { --st: var(--p-primary); background: var(--st); color: #fff; padding: .7rem 1rem; }
+.p-head .p-toolbar { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+.p-title { font-size: 1.15rem; font-weight: 600; margin-right: auto; line-height: 1.25; }
+.p-status { display: block; margin: .2rem 0 0; font-size: .9rem; font-weight: 600; text-transform: uppercase; letter-spacing: .02em; }
+.p-head .p-sub { display: block; margin: .15rem 0 0; font-size: .9rem; opacity: .92; }
+.p-head .label, .p-head .badge { margin-top: .35rem; display: inline-block; }
+.p-head .btn { padding: .15rem .5rem; line-height: 1.4; }
+.p-head[data-status=accettata]           { --st: var(--st-accettata); }
+.p-head[data-status=convalidata]         { --st: var(--st-convalidata); }
+.p-head[data-status=assegnata]           { --st: var(--st-assegnata); }
+.p-head[data-status=presa-in-carico]     { --st: var(--st-presa-in-carico); }
+.p-head[data-status=programmata]         { --st: var(--st-programmata); color: #1c2024; }
+.p-head[data-status=eseguita]            { --st: var(--st-eseguita); }
+.p-head[data-status=completata]          { --st: var(--st-completata); }
+.p-head[data-status=verificata-e-chiusa] { --st: var(--st-verificata-e-chiusa); }
+.p-head[data-status=sospesa]             { --st: var(--st-sospesa); }
+.p-head[data-status=annullata]           { --st: var(--st-annullata); }
+
+/* ---------- corpo ---------- */
+.p-body { padding: .8rem 1rem 1rem; }
+.p-card h1, .p-card .p-h { margin: 0 0 .25rem; font-family: var(--p-font); font-size: 1.25rem; font-weight: 600; line-height: 1.3; color: var(--p-heading); }
+.p-meta { color: var(--p-muted); font-size: .85rem; margin: 0 0 .4rem; }
+.p-empty { color: var(--p-muted); font-style: italic; margin: .25rem 0; }
+
+/* ---------- sezioni a scomparsa: <details class="p-section" open><summary>Titolo</summary>... ---------- */
+.p-section { margin-top: .75rem; border: 1px solid var(--p-border); border-radius: 8px; background: var(--p-surface-2); padding: .55rem .85rem; }
+.p-section > summary { font-weight: 600; color: var(--p-heading); cursor: pointer; }
+.p-section > summary:hover { text-decoration: underline; }
+.p-section[open] > summary { margin-bottom: .4rem; }
+.p-section .p-h { font-size: .95rem; margin: .7rem 0 .15rem; color: var(--p-muted); text-transform: none; }
+.p-section.p-alert { border: 2px solid #bf0a81; background: ghostwhite; }
+.p-section.p-alert > summary { color: #bf0a81; text-align: center; font-family: monospace; }
+
+/* ---------- campi: <div class="p-field"><span class="p-label">Oggetto</span><span class="p-value">...</span></div> ---------- */
+.p-field { display: flex; flex-wrap: wrap; gap: 0 1rem; padding: .3rem 0; border-bottom: 1px dashed #e9ecef; }
+.p-field:last-child { border-bottom: 0; }
+/* righe mostrate con style=display:block (popup convertiti): restano etichetta/valore affiancati */
+.p-card .p-field[style*=block] { display: flex !important; }
+/* campo vuoto (es. [% "campo" %] NULL in QGIS): la riga non si vede, niente CASE nelle espressioni */
+.p-field:has(> .p-value:empty) { display: none; }
+/* sezione senza contenuto visibile: si nasconde (se ha la classe p-auto) */
+.p-section.p-auto:not(:has(.p-value:not(:empty))) { display: none; }
+.p-label { flex: 0 0 38%; font-weight: 600; }
+.p-value { flex: 1 1 0; min-width: 0; word-break: break-word; white-space: pre-line; }
+/* contenitore stretto (pannello popup di Lizmap, telefono): etichetta sopra il valore */
+@container (max-width: 420px) {
+  .p-label, .p-value { flex: 0 0 100%; }
+  .p-label { font-size: .8rem; color: var(--p-muted); }
+  .p-title { font-size: 1.05rem; }
+}
+
+/* ---------- tabella di righe (relazioni 1:n): <table class="p-table"> ---------- */
+.p-table { width: 100%; border-collapse: collapse; font-size: .9rem; margin: .25rem 0; }
+.p-table th { text-align: left; font-weight: 600; background: #f1f4f7; }
+.p-table th, .p-table td { padding: .35rem .5rem; border-bottom: 1px solid var(--p-border); vertical-align: top; }
+.p-table tbody tr:hover td { background: #f5f8fb; }
+
+/* ---------- etichette di stato: classi Bootstrap 2 (label label-success | label-warning | label-important | label-info) ---------- */
+.p-card .label, .p-card .badge { font-family: var(--p-font); font-size: .78rem; font-weight: 600; text-shadow: none; padding: .15rem .5rem; border-radius: 4px; vertical-align: middle; }
+.p-card .label-success { background-color: var(--p-success); }
+.p-card .label-warning { background-color: var(--p-warning); }
+.p-card .label-important { background-color: var(--p-danger); }
+.p-card .label-info { background-color: var(--p-primary); }
+/* nomi di Bootstrap 5 (bg-*) usati nei popup convertiti dallo schema "record-card" */
+.p-card .bg-success { background-color: var(--p-success); color: #fff; }
+.p-card .bg-warning { background-color: var(--p-warning); color: #fff; }
+.p-card .bg-danger  { background-color: var(--p-danger);  color: #fff; }
+.p-card .bg-info, .p-card .bg-primary { background-color: var(--p-primary); color: #fff; }
+
+/* ---------- pulsanti: classi Bootstrap 2 (btn, btn-primary, btn-small) ---------- */
+.p-card .btn { font-family: var(--p-font); font-weight: 600; background-image: none; text-shadow: none; box-shadow: none; border-radius: 4px; }
+.p-card .btn-primary { background-color: var(--p-primary); border-color: var(--p-primary); color: #fff; }
+.p-card .btn-primary:hover { background-color: var(--p-primary-strong); }
+.p-actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .75rem; }
+
+/* ---------- allegati: <ul class="p-files"><li><a href="...">nome</a></li></ul> ---------- */
+.p-files { list-style: none; margin: 0; padding: 0; }
+.p-files li { padding: .25rem 0; }
+.p-files a { word-break: break-all; }
+.p-files [class^=icon-] { margin-right: .3rem; opacity: .7; }
+
+/* ---------- cronologia: <div class="p-timeline"><div class="p-timeline-item">... ---------- */
+.p-timeline { position: relative; margin: .4rem 0 0; padding-left: 1.8rem; }
+.p-timeline::before { content: ''; position: absolute; left: 10px; top: 4px; bottom: 4px; width: 3px; background: var(--p-primary); }
+.p-timeline:has(> .p-empty) { padding-left: 0; }
+.p-timeline:has(> .p-empty)::before { display: none; }
+.p-timeline-item { position: relative; margin-bottom: .9rem; padding: .2rem .45rem; border-radius: 6px; }
+.p-timeline-item:hover { background: #f1f3f5; }
+.p-timeline-item::before { content: ''; position: absolute; left: -24px; top: 7px; width: 12px; height: 12px; border-radius: 50%; background: #c0c0c0; border: 2px solid #fff; box-shadow: 0 0 0 2px #c0c0c0; }
+.p-timeline-item.is-last::before, .p-timeline-item:last-child::before { left: -27px; width: 18px; height: 18px; background: var(--p-primary); box-shadow: 0 0 0 2px var(--p-primary); }
+.p-timeline-date { font-size: .82rem; font-weight: 600; color: var(--p-muted); }
+.p-timeline-title { font-weight: 700; margin: .05rem 0; }
+.p-timeline-body { margin: .05rem 0; white-space: pre-line; }
+.p-timeline-foot { font-size: .78rem; color: var(--p-muted); }
+.p-timeline-title[data-status=accettata]           { color: var(--st-accettata); }
+.p-timeline-title[data-status=convalidata]         { color: var(--st-convalidata); }
+.p-timeline-title[data-status=assegnata]           { color: var(--st-assegnata); }
+.p-timeline-title[data-status=presa-in-carico]     { color: var(--st-presa-in-carico); }
+.p-timeline-title[data-status=programmata]         { color: #b39b00; }
+.p-timeline-title[data-status=eseguita]            { color: #6f8f18; }
+.p-timeline-title[data-status=verificata-e-chiusa] { color: var(--st-verificata-e-chiusa); }
+.p-timeline-title[data-status=sospesa]             { color: var(--st-sospesa); }
+
+/* ---------- immagini: qualunque <img> nella scheda; <figure class="p-photo"> per foto con didascalia ---------- */
+.p-card img { max-width: 100%; height: auto; }
+.p-photo { margin: .25rem 0; }
+.p-photo img { display: block; border: 1px solid var(--p-border); border-radius: 6px; }
+.p-photo figcaption { font-size: .8rem; color: var(--p-muted); margin-top: .2rem; }
+
+/* ---------- messaggi/comunicazioni ---------- */
+.p-message { background: #f4f4f4; border-left: 4px solid var(--p-primary); border-radius: 4px; padding: .45rem .7rem; margin-top: .3rem; }
+.p-message small { display: block; color: var(--p-muted); margin-top: .3rem; }
+
+/* ---------- scheda esterna incorporata in un popup QGIS: <iframe class="p-frame" src="..."> ---------- */
+iframe.p-frame { display: block; width: 100%; min-height: 160px; border: 0; background: transparent; }
+
+/* ---------- fuori dalle schede: tabelle attributi e moduli di Lizmap (via PrositLizmap) ---------- */
+/* cella di stato: <td class="p-st" data-status="presa-in-carico">  (P.paintStatus) */
+.p-st.p-st[data-status] { color: #fff; font-weight: 600; }
+.p-st.p-st[data-status=accettata]           { background-color: var(--st-accettata); }
+.p-st.p-st[data-status=convalidata]         { background-color: var(--st-convalidata); }
+.p-st.p-st[data-status=assegnata]           { background-color: var(--st-assegnata); }
+.p-st.p-st[data-status=presa-in-carico]     { background-color: var(--st-presa-in-carico); }
+.p-st.p-st[data-status=programmata]         { background-color: var(--st-programmata); color: #1c2024; }
+.p-st.p-st[data-status=eseguita]            { background-color: var(--st-eseguita); }
+.p-st.p-st[data-status=completata]          { background-color: var(--st-completata); }
+.p-st.p-st[data-status=verificata-e-chiusa] { background-color: var(--st-verificata-e-chiusa); }
+.p-st.p-st[data-status=sospesa]             { background-color: var(--st-sospesa); }
+.p-st.p-st[data-status=annullata]           { background-color: var(--st-annullata); }
+/* tono generico: <td class="p-tone" data-tone="ok|warn|ko">  (P.paintTone) */
+.p-tone.p-tone[data-tone] { color: #fff; font-weight: 600; }
+.p-tone.p-tone[data-tone=ok]   { background-color: var(--p-success); }
+.p-tone.p-tone[data-tone=warn] { background-color: var(--p-warning); }
+.p-tone.p-tone[data-tone=ko]   { background-color: var(--p-danger); }
+/* campo compilato automaticamente con l'utente (P.operatore) */
+input.p-locked, textarea.p-locked { background-color: #eef1f4; cursor: not-allowed; }
+
+/* ---------- stampa ---------- */
+@media print {
+  .p-card { border: 0; }
+  .p-head { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .p-card .btn, .p-no-print { display: none !important; }
+  .p-section { break-inside: avoid; }
+}

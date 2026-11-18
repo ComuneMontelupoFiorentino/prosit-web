@@ -1,0 +1,33 @@
+# File da togliere dalle cartelle dei progetti (percorsi relativi a /srv/data).
+# Li toglie  bin/prosit lizmap-js  (dopo il backup). Le righe con # sono commenti.
+
+# lo fa Prosit (ricarica le schede incorporate dopo ogni modifica)
+segn/media/js/rekla/refresh_iframe_content_after_event.js
+
+# statistiche sulla selezione: c'era solo la configurazione, con un errore di sintassi
+# ('alb_id'' ) che blocca lo script; il resto del modulo non c'e' mai stato
+qfield/media/js/cens_vp_23/show_statistics_on_selection.js
+qfield/media/js/cens_vp_23/show_statistics_on_selection.css
+qfield/media/js/cens_vp_23/show_statistics_on_selection
+
+# prove: pannello con Google Maps in un iframe (Google lo blocca) e appunti
+qfield/media/js/cens_vp_23/test1.js
+qfield/media/js/cens_vp_23/test.txt
+
+# vecchie versioni disattivate (Lizmap carica solo .js, .mjs e .css): solo disordine
+cons/media/js/default/logo_sx.jsOLD
+cons/media/js/default/openpopup_bar.jsOLD
+cons/media/js/default/externaliink_from_map.js_
+est/media/js/default/logo_sx.jsOLD
+est/media/js/default/openpopup_bar.jsOLD
+est/media/js/default/externaliink_from_map.js_
+segn/media/js/default/openpopup_bar.jsOLD
+
+# funzioni che chiamavano pagine mai esistite sui server attuali: ne' sulla vecchia VM
+# (10.0.43.29, cercate su tutto il disco) ne' su 10.0.33.29 (non risponde)
+segn/media/js/default/logo_sx.js
+qfield/media/js/aut_sc_fogn_23/botton_segn.js
+cons/media/js/01-patrimonio-immobiliare-comunale/button_print_table_contratti.js
+cons/media/js/01-patrimonio-immobiliare-comunale/button_print_table_trasparenza.js
+cons/media/js/01-patrimonio-immobiliare-comunale/gest_patrim.js
+cons/media/js/01-patrimonio-immobiliare-comunale/note.js

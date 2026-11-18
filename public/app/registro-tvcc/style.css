@@ -1,0 +1,215 @@
+body {
+    overflow-x: hidden;
+}
+.tvcc-box {
+    cursor: pointer;
+    transition: 0.2s;
+    align-items: center;
+} 
+.custom-span {
+    width: 40px;
+    height: 40px;
+} 
+.popover {
+    z-index: 9999;
+}
+.btn-sm, .btn-group-sm > .btn {
+  padding: 5px 18px;
+}
+.justify-content-between {
+  justify-content: end !important;
+}
+.save-pop {
+  margin-left: 15px;
+}
+.popover-body {
+  padding: 10px;
+}
+.custom-button-plus {
+  display:block;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  border: 1px solid #5d7083;
+  background-color: #5d7083;
+  color: white;
+}
+.custom-button-plus:hover {
+  transform: scale(1.5);
+  border: 1px solid #06c;
+  background-color: #06c;
+  color: white;
+}
+.badge-custom {
+    font-size: 12px;
+}     
+.tvcc-box-segn {
+    border-left: 5px solid #de1b0d;
+} 
+ 
+/* Sostituisci il tuo blocco <style> con questo */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; /* Fondamentale: impedisce lo scroll del body */
+}
+
+.container-fluid {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.page {
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Occupa tutto lo spazio del container */
+    width: 100%;
+    padding: 20px;
+}
+
+.header {
+    flex-shrink: 0; /* L'header non si restringe */
+    padding-bottom: 15px;
+    background-color: white; /* Per coprire il contenuto che scorre sotto */
+    z-index: 10;
+}
+
+.scroll-area {
+    flex-grow: 1;
+    overflow-y: auto;
+    min-height: 0;
+    overscroll-behavior: contain;
+    padding-right: 5px;
+    
+    /* AGGIUNGI QUESTO: */
+    padding-bottom: 100px; /* Crea uno spazio "cuscinetto" alla fine dello scroll */
+    margin-bottom: 10px;
+}
+.scroll-area .row {
+    margin-bottom: 0; /* Evita margini negativi di Bootstrap che creano scroll orizzontale */
+    padding-bottom: 20px; /* Spazio extra per le ombre delle card dell'ultima riga */
+}
+.scroll-area::-webkit-scrollbar {
+    width: 8px;
+}
+.scroll-area::-webkit-scrollbar-thumb {
+    background: #ccc;
+    border-radius: 4px;
+}
+.col-lg-2 {
+    flex: 0 0 auto;
+    width: 12%;
+}
+h5 {
+    font-size: 20px;
+} 
+
+.popover { z-index: 2000 !important; }
+.modal { z-index: 3000 !important; }
+.btn-sm { max-width: 100%; }
+
+/* =========================
+   CONTROL ROOM - PA STYLE
+   ========================= */
+
+/* Animazione base */
+@keyframes fadeInUpSoft {
+    from {
+        opacity: 0;
+        transform: translateY(6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Card TVCC */
+.tvcc-box {
+    opacity: 0;
+    transform: translateY(6px);
+    animation: fadeInUpSoft 0.45s ease-out forwards;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Delay progressivo controllato */
+.tvcc-box {
+    animation-delay: calc(var(--i, 0) * 0.03s);
+}
+
+/* Hover sobrio (PA style) */
+.tvcc-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+/* Accessibilità: no motion */
+@media (prefers-reduced-motion: reduce) {
+    .tvcc-box {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+}
+/* =========================
+   HEADER ENTER (PA STYLE)
+   ========================= */
+
+   @keyframes headerSlideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.header {
+    opacity: 0;
+    animation: headerSlideDown 0.35s ease-out forwards;
+}
+
+/* Accessibilità */
+@media (prefers-reduced-motion: reduce) {
+    .header {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+    }
+}
+
+.bg-legend {
+    padding: 10px !important;
+} 
+.bg-accettato {
+    background-color: #c6c6c6 !important;
+} 
+.bg-sospeso {
+    background-color: #06c !important;
+} 
+.bg-convalidato {
+    background-color: #c90002 !important;
+} 
+.bg-assegnato {
+    background-color: #ff3b02 !important;
+} 
+.bg-presoInCarico {
+    background-color: #ff8102 !important;
+} 
+.bg-programmato {
+    background-color: #ffe32e !important;
+} 
+.bg-eseguito {
+    background-color: #b6e32e !important;
+} 
+/* iframe della scheda segnalazione nel modale */
+.issue-frame { width: 100%; height: 80vh; border: 0; }
+
+/* icona telecamera/targa (Glyphicons di Bootstrap 2, ingrandita) */
+.tvcc-icon { transform: scale(1.7); margin: .45rem 0; opacity: .75; }

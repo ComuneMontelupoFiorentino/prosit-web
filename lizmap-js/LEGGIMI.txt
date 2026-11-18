@@ -1,0 +1,9 @@
+JS dei progetti Lizmap, aggiornati per Prosit e Lizmap 3.9.
+La struttura e' la stessa di /srv/data:  <repository>/media/js/<progetto o default>/file.js
+
+Installazione (backup automatico, poi copia e pulizia):
+    /usr/local/bin/prosit/prosit-web/bin/prosit lizmap-js --prova     # mostra cosa farebbe
+    /usr/local/bin/prosit/prosit-web/bin/prosit lizmap-js             # lo fa
+
+DA_CANCELLARE.txt  elenco dei file da togliere dalle cartelle dei progetti.
+Dettagli: README.md, sezione 7ter.

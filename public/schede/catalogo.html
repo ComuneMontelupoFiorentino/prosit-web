@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <link rel="icon" href="../../assets/favicon/favicon.ico">
+  <title>Catalogo delle schede</title>
+  <link rel="stylesheet" href="../assets/prosit.css">
+</head>
+<body class="p-sheet p-doc">
+<!-- Ogni esempio compare due volte: resa dal vivo e codice da copiare (escapato). Se si cambia uno, cambiare anche l'altro. -->
+<main class="container">
+  <h1>Linguaggio comune delle schede</h1>
+  <p>Le stesse classi funzionano nei <strong>popup creati in QGIS</strong> (Lizmap carica <code>prosit-components.css</code> tramite <code>media/js/default/prosit-lizmap.js</code>) e nelle <strong>schede esterne</strong> di Prosit. Sotto c'è sempre la Bootstrap 2 di Lizmap. Modelli QGIS pronti: cartella <code>qgis/</code> del pacchetto.</p>
+  <p class="p-doc-rules"><strong>Regole:</strong> tutto dentro <code>&lt;div class="p-card"&gt;</code> · niente <code>&lt;script&gt;</code> né <code>&lt;style&gt;</code> (Lizmap li toglie) · i campi vuoti si nascondono da soli · per le relazioni 1:n si incorpora la scheda esterna.</p>
+  <section class="p-doc-item">
+    <h2>Contenitore e testata</h2>
+    <p>Ogni scheda sta in <code>.p-card</code>. La testata prende il colore dallo stato: <code>data-status</code> = stato in minuscolo con i trattini. In QGIS: <code>[% regexp_replace(lower("stato"), '[^a-z0-9]+', '-') %]</code>.</p>
+    <div class="p-doc-live">
+<div class="p-card">
+  <div class="p-head" data-status="presa-in-carico">
+    <div class="p-toolbar"><span class="p-title">RK-2026-0142</span></div>
+    <span class="p-status">Presa in carico</span>
+  </div>
+  <div class="p-body">
+    <p class="p-meta">Aggiornato il 20/10/2026</p>
+    <h1>Verde pubblico</h1>
+  </div>
+</div>
+    </div>
+    <pre class="p-doc-code"><code>&lt;div class=&quot;p-card&quot;&gt;
+  &lt;div class=&quot;p-head&quot; data-status=&quot;presa-in-carico&quot;&gt;
+    &lt;div class=&quot;p-toolbar&quot;&gt;&lt;span class=&quot;p-title&quot;&gt;RK-2026-0142&lt;/span&gt;&lt;/div&gt;
+    &lt;span class=&quot;p-status&quot;&gt;Presa in carico&lt;/span&gt;
+  &lt;/div&gt;
+  &lt;div class=&quot;p-body&quot;&gt;
+    &lt;p class=&quot;p-meta&quot;&gt;Aggiornato il 20/10/2026&lt;/p&gt;
+    &lt;h1&gt;Verde pubblico&lt;/h1&gt;
+  &lt;/div&gt;
+&lt;/div&gt;</code></pre>
+  </section>
+  <section class="p-doc-item">
+    <h2>Campi</h2>
+    <p>Riga etichetta/valore. Se il valore è vuoto (un campo NULL in QGIS) la riga si nasconde da sola: non servono <code>CASE</code>. Nei contenitori stretti (pannello popup) l'etichetta va sopra il valore.</p>
+    <div class="p-doc-live">
+<div class="p-card"><div class="p-body">
+  <div class="p-field"><span class="p-label">Oggetto</span><span class="p-value">Ramo caduto</span></div>
+  <div class="p-field"><span class="p-label">Descrizione</span><span class="p-value">Ramo pericolante
+in via Roma</span></div>
+  <div class="p-field"><span class="p-label">Note</span><span class="p-value"></span></div>
+</div></div>
+    </div>
+    <pre class="p-doc-code"><code>&lt;div class=&quot;p-card&quot;&gt;&lt;div class=&quot;p-body&quot;&gt;
+  &lt;div class=&quot;p-field&quot;&gt;&lt;span class=&quot;p-label&quot;&gt;Oggetto&lt;/span&gt;&lt;span class=&quot;p-value&quot;&gt;Ramo caduto&lt;/span&gt;&lt;/div&gt;
+  &lt;div class=&quot;p-field&quot;&gt;&lt;span class=&quot;p-label&quot;&gt;Descrizione&lt;/span&gt;&lt;span class=&quot;p-value&quot;&gt;Ramo pericolante
+in via Roma&lt;/span&gt;&lt;/div&gt;
+  &lt;div class=&quot;p-field&quot;&gt;&lt;span class=&quot;p-label&quot;&gt;Note&lt;/span&gt;&lt;span class=&quot;p-value&quot;&gt;&lt;/span&gt;&lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;</code></pre>
+  </section>
+  <section class="p-doc-item">
+    <h2>Sezioni</h2>
+    <p>Blocchi a scomparsa. Con <code>open</code> partono aperti. Con la classe <code>p-auto</code> una sezione senza campi valorizzati si nasconde.</p>
+    <div class="p-doc-live">
+<div class="p-card"><div class="p-body">
+  <details class="p-section" open>
+    <summary>Richiesta</summary>
+    <div class="p-field"><span class="p-label">Segnalante</span><span class="p-value">Mario Rossi</span></div>
+  </details>
+  <details class="p-section">
+    <summary>Localizzazione</summary>
+    <div class="p-field"><span class="p-label">Via</span><span class="p-value">Via Roma 12</span></div>
+  </details>
+</div></div>
+    </div>
+    <pre class="p-doc-code"><code>&lt;div class=&quot;p-card&quot;&gt;&lt;div class=&quot;p-body&quot;&gt;
+  &lt;details class=&quot;p-section&quot; open&gt;
+    &lt;summary&gt;Richiesta&lt;/summary&gt;
+    &lt;div class=&quot;p-field&quot;&gt;&lt;span class=&quot;p-label&quot;&gt;Segnalante&lt;/span&gt;&lt;span class=&quot;p-value&quot;&gt;Mario Rossi&lt;/span&gt;&lt;/div&gt;
+  &lt;/details&gt;
+  &lt;details class=&quot;p-section&quot;&gt;
+    &lt;summary&gt;Localizzazione&lt;/summary&gt;
+    &lt;div class=&quot;p-field&quot;&gt;&lt;span class=&quot;p-label&quot;&gt;Via&lt;/span&gt;&lt;span class=&quot;p-value&quot;&gt;Via Roma 12&lt;/span&gt;&lt;/div&gt;
+  &lt;/details&gt;
+&lt;/div&gt;&lt;/div&gt;</code></pre>
+  </section>
+  <section class="p-doc-item">
+    <h2>Etichette di stato e pulsanti</h2>
+    <p>Classi di Bootstrap 2 di Lizmap, con l'aspetto del tema: <code>label</code>, <code>label-success</code>, <code>label-warning</code>, <code>label-important</code>, <code>label-info</code>; <code>btn</code>, <code>btn-primary</code>, <code>btn-small</code>.</p>
+    <div class="p-doc-live">
+<div class="p-card"><div class="p-body">
+  <span class="label">Inviata</span>
+  <span class="label label-success">Eseguita</span>
+  <span class="label label-warning">In corso</span>
+  <span class="label label-important">Non controllato</span>
+  <span class="label label-info">Programmata</span>
+  <div class="p-actions">
+    <a class="btn btn-small btn-primary" href="#">Apri la scheda completa</a>
+    <a class="btn btn-small" href="#"><i class="icon-print"></i> Stampa</a>
+  </div>
+</div></div>
+    </div>
+    <pre class="p-doc-code"><code>&lt;div class=&quot;p-card&quot;&gt;&lt;div class=&quot;p-body&quot;&gt;
+  &lt;span class=&quot;label&quot;&gt;Inviata&lt;/span&gt;
+  &lt;span class=&quot;label label-success&quot;&gt;Eseguita&lt;/span&gt;
+  &lt;span class=&quot;label label-warning&quot;&gt;In corso&lt;/span&gt;
+  &lt;span class=&quot;label label-important&quot;&gt;Non controllato&lt;/span&gt;
+  &lt;span class=&quot;label label-info&quot;&gt;Programmata&lt;/span&gt;
+  &lt;div class=&quot;p-actions&quot;&gt;
+    &lt;a class=&quot;btn btn-small btn-primary&quot; href=&quot;#&quot;&gt;Apri la scheda completa&lt;/a&gt;
+    &lt;a class=&quot;btn btn-small&quot; href=&quot;#&quot;&gt;&lt;i class=&quot;icon-print&quot;&gt;&lt;/i&gt; Stampa&lt;/a&gt;
+  &lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;</code></pre>
+  </section>
+  <section class="p-doc-item">
+    <h2>Tabella (righe collegate)</h2>
+    <p>Per elenchi brevi già disponibili in QGIS (es. una relazione aggregata con <code>array_to_string</code>).</p>
+    <div class="p-doc-live">
+<div class="p-card"><div class="p-body">
+  <table class="p-table">
+    <thead><tr><th>Data</th><th>Intervento</th></tr></thead>
+    <tbody><tr><td>01/03/2026</td><td>Ispezione</td></tr><tr><td>01/06/2026</td><td>Sostituzione lampada</td></tr></tbody>
+  </table>
+</div></div>
+    </div>
+    <pre class="p-doc-code"><code>&lt;div class=&quot;p-card&quot;&gt;&lt;div class=&quot;p-body&quot;&gt;
+  &lt;table class=&quot;p-table&quot;&gt;
+    &lt;thead&gt;&lt;tr&gt;&lt;th&gt;Data&lt;/th&gt;&lt;th&gt;Intervento&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;
+    &lt;tbody&gt;&lt;tr&gt;&lt;td&gt;01/03/2026&lt;/td&gt;&lt;td&gt;Ispezione&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;01/06/2026&lt;/td&gt;&lt;td&gt;Sostituzione lampada&lt;/td&gt;&lt;/tr&gt;&lt;/tbody&gt;
+  &lt;/table&gt;
+&lt;/div&gt;&lt;/div&gt;</code></pre>
+  </section>
+  <section class="p-doc-item">
+    <h2>Cronologia</h2>
+    <p>La generano le schede esterne (<code>Prosit.ui.timeline</code>); in QGIS si può scrivere a mano. L'ultimo elemento è evidenziato.</p>
+    <div class="p-doc-live">
+<div class="p-card"><div class="p-body">
+  <div class="p-timeline">
+    <div class="p-timeline-item">
+      <div class="p-timeline-date">01/10/2026</div>
+      <div class="p-timeline-title" data-status="accettata">Accettata</div>
+      <p class="p-timeline-body">Ricevuta dall'URP</p>
+      <div class="p-timeline-foot">Operatore: urp</div>
+    </div>
+    <div class="p-timeline-item">
+      <div class="p-timeline-date">02/10/2026</div>
+      <div class="p-timeline-title" data-status="assegnata">Assegnata</div>
+      <div class="p-timeline-foot">Operatore: ufficio</div>
+    </div>
+  </div>
+</div></div>
+    </div>
+    <pre class="p-doc-code"><code>&lt;div class=&quot;p-card&quot;&gt;&lt;div class=&quot;p-body&quot;&gt;
+  &lt;div class=&quot;p-timeline&quot;&gt;
+    &lt;div class=&quot;p-timeline-item&quot;&gt;
+      &lt;div class=&quot;p-timeline-date&quot;&gt;01/10/2026&lt;/div&gt;
+      &lt;div class=&quot;p-timeline-title&quot; data-status=&quot;accettata&quot;&gt;Accettata&lt;/div&gt;
+      &lt;p class=&quot;p-timeline-body&quot;&gt;Ricevuta dall&#x27;URP&lt;/p&gt;
+      &lt;div class=&quot;p-timeline-foot&quot;&gt;Operatore: urp&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;div class=&quot;p-timeline-item&quot;&gt;
+      &lt;div class=&quot;p-timeline-date&quot;&gt;02/10/2026&lt;/div&gt;
+      &lt;div class=&quot;p-timeline-title&quot; data-status=&quot;assegnata&quot;&gt;Assegnata&lt;/div&gt;
+      &lt;div class=&quot;p-timeline-foot&quot;&gt;Operatore: ufficio&lt;/div&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+&lt;/div&gt;&lt;/div&gt;</code></pre>
+  </section>
+  <section class="p-doc-item">
+    <h2>Allegati</h2>
+    <p>Elenco di file. Gli allegati di Rekla passano dal proxy autenticato di Prosit (<code>Prosit.urls.document</code>).</p>
+    <div class="p-doc-live">
+<div class="p-card"><div class="p-body">
+  <ul class="p-files">
+    <li><i class="icon-file"></i><a href="#">progetto.pdf</a></li>
+    <li><i class="icon-file"></i><a href="#">foto-sopralluogo.jpg</a></li>
+  </ul>
+</div></div>
+    </div>
+    <pre class="p-doc-code"><code>&lt;div class=&quot;p-card&quot;&gt;&lt;div class=&quot;p-body&quot;&gt;
+  &lt;ul class=&quot;p-files&quot;&gt;
+    &lt;li&gt;&lt;i class=&quot;icon-file&quot;&gt;&lt;/i&gt;&lt;a href=&quot;#&quot;&gt;progetto.pdf&lt;/a&gt;&lt;/li&gt;
+    &lt;li&gt;&lt;i class=&quot;icon-file&quot;&gt;&lt;/i&gt;&lt;a href=&quot;#&quot;&gt;foto-sopralluogo.jpg&lt;/a&gt;&lt;/li&gt;
+  &lt;/ul&gt;
+&lt;/div&gt;&lt;/div&gt;</code></pre>
+  </section>
+  <section class="p-doc-item">
+    <h2>Scheda esterna dentro un popup QGIS</h2>
+    <p>Per le relazioni 1:n che QGIS non gestisce. Prosit sostituisce il segnaposto con la scheda (stessa sessione, altezza automatica). <code>parti</code> mostra solo alcune sezioni, senza ripetere la testata. Funziona solo dentro Lizmap e solo per pagine di <code>/lizmap/prosit/schede/</code>.</p>
+    <pre class="p-doc-code"><code>&lt;div class=&quot;p-embed&quot; data-title=&quot;Scheda segnalazione&quot;
+     data-src=&quot;/lizmap/prosit/schede/disservizio.html?seg_id=[% &quot;seg_id&quot; %]&amp;amp;parti=cronologia,allegati,comunicazioni&quot;&gt;&lt;/div&gt;</code></pre>
+  </section>
+  <section class="p-doc-item">
+    <h2>Colori di stato</h2>
+    <p>Valori ammessi per <code>data-status</code> (testata e titoli della cronologia).</p>
+    <div class="p-doc-states">
+      <div class="p-card"><div class="p-head" data-status="accettata"><span class="p-title">accettata</span></div></div>
+      <div class="p-card"><div class="p-head" data-status="convalidata"><span class="p-title">convalidata</span></div></div>
+      <div class="p-card"><div class="p-head" data-status="assegnata"><span class="p-title">assegnata</span></div></div>
+      <div class="p-card"><div class="p-head" data-status="presa-in-carico"><span class="p-title">presa-in-carico</span></div></div>
+      <div class="p-card"><div class="p-head" data-status="programmata"><span class="p-title">programmata</span></div></div>
+      <div class="p-card"><div class="p-head" data-status="eseguita"><span class="p-title">eseguita</span></div></div>
+      <div class="p-card"><div class="p-head" data-status="completata"><span class="p-title">completata</span></div></div>
+      <div class="p-card"><div class="p-head" data-status="verificata-e-chiusa"><span class="p-title">verificata-e-chiusa</span></div></div>
+      <div class="p-card"><div class="p-head" data-status="sospesa"><span class="p-title">sospesa</span></div></div>
+      <div class="p-card"><div class="p-head" data-status="annullata"><span class="p-title">annullata</span></div></div>
+    </div>
+  </section>
+</main>
+</body>
+</html>

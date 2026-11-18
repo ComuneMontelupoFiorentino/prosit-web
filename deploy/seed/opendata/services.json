@@ -1,0 +1,184 @@
+[
+    {
+        "id": "cerca-manutenzioni",
+        "title": "Cerca Manutenzioni",
+        "icona": "it-calendar",
+        "desc": "Esplora la programmazione degli interventi.",
+        "link": "?service=cerca-manutenzioni&map=true&breadCrumb=true",
+        "new": true,
+        "allowEmbed": true,
+        "tags": [
+            "Manutenzioni",
+            "Interventi",
+            "Programmazione",
+            "Verde Pubblico"
+        ],
+        "datasets": [
+            {
+                "nameDataset": "Programma Interventi di manutenzione ordinaria",
+                "alias": "plan",
+                "url": "https://dati.toscana.it/dataset/pianificazione-interventi",
+                "cache": true,
+                "recordsPath": "giorni.*.interventi",
+                "groupKeyField": "date",
+                "groupCountField": "totale",
+                "fetch": "http://10.0.43.51/lizmap/comune-in-chiaro/api/opendata_relay.php?u=https%3A%2F%2Fdati.toscana.it%2Fdataset%2F4073a84d-abf1-4cbd-bac1-8077bdf9a311%2Fresource%2F213a162e-f903-478a-b311-72f411e37729%2Fdownload%2Finterventi_di_manutenzione_ordinaria.json"
+            },
+            {
+                "nameDataset": "Patrimonio oggetto di interventi ordinari",
+                "alias": "map-elements",
+                "url": "https://dati.toscana.it/dataset/oggetti-di-interventi-ordinari",
+                "cache": true,
+                "fetch": "http://10.0.43.51/lizmap/comune-in-chiaro/api/opendata_relay.php?u=https%3A%2F%2Fdati.toscana.it%2Fdataset%2F19dd86d0-8726-45d0-8e2f-9c25d5edd211%2Fresource%2F9262b857-8f88-470c-bcf1-2274dbdfccd4%2Fdownload%2Fmanutenzioni_oggetti_di_interventi.geojson"
+            },
+            {
+                "nameDataset": "Manutenzioni - Suddivisione zone",
+                "alias": "manutenzioni-suddivisione-zone",
+                "url": "https://dati.toscana.it/dataset/manutenzioni-suddivisione-zone",
+                "cache": true,
+                "fetch": "http://10.0.43.51/lizmap/comune-in-chiaro/api/opendata_relay.php?u=https%3A%2F%2Fdati.toscana.it%2Fdataset%2F8ce5c353-530a-4f61-8904-7bf48bebfb69%2Fresource%2Ffe5fa13d-34eb-4aa9-bcf9-2b014957479e%2Fdownload%2Fmanutenzioni_suddivisione_zone.geojson"
+            },
+            {
+                "nameDataset": "Manutenzioni - Aree in gestione a soggetti terzi",
+                "alias": "manutenzioni-aree-senza-programma",
+                "url": "https://dati.toscana.it/dataset/gestori-aree-a-verde",
+                "cache": true,
+                "fetch": "http://10.0.43.51/lizmap/comune-in-chiaro/api/opendata_relay.php?u=https%3A%2F%2Fdati.toscana.it%2Fdataset%2Fe73cb5db-0852-446c-8536-3705d0b027d3%2Fresource%2F41bad6ea-60c1-4a94-847a-acbfcb7ada6b%2Fdownload%2Faree_sfalci_gestite_da_concessionario_o_conduttore.geojson"
+            }
+        ],
+        "alert": [
+            {
+                "typeAlert": "warning",
+                "text": "I dati non includono gli interventi relativi ad aree in concessione o di competenza di altri enti/gestori, le cui programmazioni non sono attualmente disponibili nel sistema."
+            }
+        ],
+        "descriptiion": [
+            {
+                "p": "Grazie alla gestione informatizzata dei servizi di Manutenzione è possibile esplorare la programamzione degli interventi."
+            },
+            {
+                "p": "Il form può essere compilato al fine di filtrare i dati."
+            },
+            {
+                "p": "Cliccando su una data contrassegnata col pallino rosso è possibile visualizzare gli interventi programmati o eseguiti per quella data. Le date senza contrassegno non dispongono di un intervento."
+            }
+        ],
+        "type": "service",
+        "dev": "prod",
+        "lastUpdate": {
+            "alias": "plan",
+            "field": "generated_at"
+        }
+    },
+    {
+        "id": "censimento-arboreo-comunale",
+        "title": "",
+        "type": "sheet",
+        "icona": "",
+        "desc": "Censimento arboreo comunale",
+        "link": "?sheet=censimento-arboreo-comunale",
+        "new": false,
+        "allowEmbed": false,
+        "dev": "prod",
+        "tags": [
+            "Censiemento",
+            "ALberi",
+            "Patrimonio",
+            "Verde pubblico"
+        ],
+        "alert": [
+            {
+                "typeAlert": "success",
+                "text": "Pianta censita da personale specializzato"
+            }
+        ],
+        "descriptiion": [],
+        "datasets": [
+            {
+                "nameDataset": "Stato del censimento",
+                "alias": "status",
+                "url": "https://dati.toscana.it/dataset/censimento-arboreo-comunale/resource/8255ff2b-032c-4d8a-a41e-5071eb563555",
+                "cache": true,
+                "fetch": "https://www.comune.montelupo-fiorentino.fi.it/comune-in-chiaro/api/opendata_relay.php?u=https%3A%2F%2Fdati.toscana.it%2Fdataset%2F6dae003a-3693-4eb5-916d-03c953e911c1%2Fresource%2F8255ff2b-032c-4d8a-a41e-5071eb563555%2Fdownload%2Fstato_avanzamento_censimento_arboreo.json",
+                "filters": [
+                    {
+                        "field": "id",
+                        "operator": "=",
+                        "source": "query",
+                        "parameter": "obj_id"
+                    }
+                ],
+                "is_infoGroup": false
+            },
+            {
+                "nameDataset": "Localizzazione",
+                "alias": "location",
+                "url": "https://dati.toscana.it/dataset/alberi-pubblici-localizzazione",
+                "cache": true,
+                "fetch": "https://www.comune.montelupo-fiorentino.fi.it/comune-in-chiaro/api/opendata_relay.php?u=https%3A%2F%2Fdati.toscana.it%2Fdataset%2F350ac1c9-7656-4dac-908d-a020d3503178%2Fresource%2F83a30e25-3fec-4c26-b39a-868ce6560b34%2Fdownload%2Falberi_pubblici_localizzazione_piante.geojson",
+                "is_infoGroup": true,
+                "infoGroupPosition": 3
+            },
+            {
+                "nameDataset": "Parametri dendrometrici",
+                "alias": "dendometrics",
+                "url": "https://dati.toscana.it/dataset/alberi-pubblici-parametri-dendrometrici-degli-alberi-comunali",
+                "cache": true,
+                "fetch": "https://www.comune.montelupo-fiorentino.fi.it/comune-in-chiaro/api/opendata_relay.php?u=https%3A%2F%2Fdati.toscana.it%2Fdataset%2Faaa3296d-c76d-4e1f-a1af-c79733f24d79%2Fresource%2Fd7e4cfe9-fa5a-4a27-9854-3299fc589996%2Fdownload%2Falberi_pubblici_parametri_dendrometrici_degli_alberi_comunali.json",
+                "filters": [
+                    {
+                        "field": "id",
+                        "operator": "=",
+                        "source": "query",
+                        "parameter": "obj_id"
+                    }
+                ],
+                "is_infoGroup": true,
+                "infoGroupPosition": 1
+            },
+            {
+                "nameDataset": "Stato fitosanitario",
+                "alias": "phytosanitary",
+                "url": "https://dati.toscana.it/dataset/alberi-pubblici-stato-fitosanitario",
+                "cache": true,
+                "fetch": "https://www.comune.montelupo-fiorentino.fi.it/comune-in-chiaro/api/opendata_relay.php?u=https%3A%2F%2Fdati.toscana.it%2Fdataset%2F4d5ec8b5-f009-4e7e-a98f-ddf17d7d2cec%2Fresource%2F6af6fba5-e866-4594-b678-9eb4d8fd70e7%2Fdownload%2Falberi_pubblici_stato_fitosanitario_degli_alberi_comunali.json",
+                "filters": [
+                    {
+                        "field": "id",
+                        "operator": "=",
+                        "source": "query",
+                        "parameter": "obj_id"
+                    }
+                ],
+                "is_infoGroup": true,
+                "infoGroupPosition": 2
+            },
+            {
+                "nameDataset": "Specie arboree",
+                "alias": "treeSpecies",
+                "url": "https://dati.toscana.it/dataset/569a020f-29e9-48d1-aa7b-51039282c307/resource/eda2349e-aacb-410c-9612-ce9d75957c99/download",
+                "cache": true,
+                "fetch": "https://www.comune.montelupo-fiorentino.fi.it/comune-in-chiaro/api/opendata_relay.php?u=https%3A%2F%2Fdati.toscana.it%2Fdataset%2F569a020f-29e9-48d1-aa7b-51039282c307%2Fresource%2Feda2349e-aacb-410c-9612-ce9d75957c99%2Fdownload%2Falberi_pubblici_specie_arboree.json",
+                "filters": [
+                    {
+                        "field": "id",
+                        "operator": "=",
+                        "source": "query",
+                        "parameter": "obj_id"
+                    }
+                ],
+                "is_infoGroup": false
+            }
+        ],
+        "titleDataset": "status",
+        "titleField": "id",
+        "lastUpdate": {
+            "alias": "status",
+            "field": "ultimo_aggiornamento"
+        },
+        "category": {
+            "alias": "treeSpecies",
+            "field": "specie"
+        }
+    }
+]

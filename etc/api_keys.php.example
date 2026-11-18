@@ -1,0 +1,13 @@
+<?php
+/**
+ * local/api_keys.php — accesso per le macchine (leggibile solo dal proprietario e da www-data).
+ * Per le chiavi qui c'e' solo l'HASH. Nuova chiave:  /usr/local/bin/prosit/prosit-web/bin/prosit key:new NOME
+ * (stampa la chiave UNA volta e la riga da incollare qui).
+ */
+return [
+    // Stazione meteo: non puo' inviare una chiave, quindi e' accettata SOLO dal suo IP.
+    // (Quando avra' una sua VM, aggiornare qui l'indirizzo.)
+    'meteo' => [
+        'trusted_ips' => ['10.0.33.15'],
+    ],
+];

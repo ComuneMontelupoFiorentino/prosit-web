@@ -1,0 +1,235 @@
+/* ============================================================
+   VP Planner - stili custom
+   Colori stato coerenti col calendario di visualizzazione esistente
+   ============================================================ */
+
+:root {
+  --st-planned:  #5d7083;
+  --st-eseguito: #008055;
+  --st-draft:    #995c00;
+}
+
+body { background: #f5f6f7; }
+
+.manteiner-line { font-size: 1.2rem; font-weight: 700; color: var(--p-primary); line-height: 1.3; }
+.seg-mark { width: 12px; height: 12px; border-radius: 3px; border: 1.5px dashed #8a97a3; display: inline-block; flex: none; }
+.cal-chip.is-seg { box-shadow: inset 3px 0 0 rgba(255,255,255,.9); }
+
+.badge-utente {
+  background: #fff;
+  border: 1px solid var(--p-primary);
+  color: var(--p-primary);
+  border-radius: 999px;
+  padding: .25rem .75rem;
+  font-weight: 600;
+  font-size: .85rem;
+  white-space: nowrap;
+}
+
+/* --- barra controlli --- */
+.form-label-static {
+  display: block;
+  font-size: .7777rem;
+  font-weight: 600;
+  color: #5b6f82;
+  margin-bottom: .25rem;
+}
+.month-nav { display: flex; align-items: center; gap: .5rem; }
+.month-label {
+  font-weight: 700;
+  text-transform: capitalize;
+  min-width: 8rem;
+  text-align: center;
+  font-size: 1.05rem;
+}
+
+/* --- legenda --- */
+.legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 1.25rem;
+  align-items: center;
+  margin: 0 .25rem 1rem;
+  font-size: .8rem;
+  color: #43505c;
+}
+.legenda .voce { display: inline-flex; align-items: center; gap: .4rem; }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; flex: none; }
+.swatch { width: 12px; height: 12px; border-radius: 3px; display: inline-block; flex: none; }
+.bg-planned  { background: var(--st-planned); }
+.bg-Eseguito { background: var(--st-eseguito); }
+.bg-draft    { background: var(--st-draft); }
+
+/* ============ CALENDARIO ============ */
+.calendar { user-select: none; }
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.cal-head {
+  text-align: center;
+  font-weight: 700;
+  font-size: .72rem;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+  color: #5b6f82;
+  padding: .35rem 0;
+}
+.cal-cell {
+  background: #fff;
+  border: 1px solid #dfe4e8;
+  border-radius: 6px;
+  min-height: 92px;
+  padding: 4px 5px 6px;
+  display: flex;
+  flex-direction: column;
+  cursor: pointer;
+  transition: border-color .12s, box-shadow .12s, background .12s;
+}
+.cal-cell:hover { border-color: var(--p-primary); box-shadow: 0 1px 6px rgba(0,102,204,.12); }
+.cal-cell:focus-visible { outline: 2px solid var(--p-primary); outline-offset: 1px; }
+.cal-cell.empty { background: transparent; border: none; cursor: default; box-shadow: none; }
+.cal-cell.empty:hover { box-shadow: none; }
+.cal-cell.weekend { background: #fafbfc; }
+.cal-cell.oggi { border-color: var(--p-primary); box-shadow: inset 0 0 0 1px var(--p-primary); }
+
+.cal-day {
+  font-size: .8rem;
+  font-weight: 700;
+  color: #33414d;
+  align-self: flex-start;
+  line-height: 1.4;
+  width: 1.5rem;
+  text-align: center;
+  border-radius: 4px;
+}
+.cal-cell.oggi .cal-day { background: var(--p-primary); color: #fff; }
+
+.cal-items { display: flex; flex-direction: column; gap: 3px; margin-top: 3px; overflow: hidden; }
+.cal-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: .7rem;
+  line-height: 1.25;
+  color: #fff;
+  border-radius: 4px;
+  padding: 1px 5px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cal-chip .chip-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: rgba(255,255,255,.85); flex: none;
+}
+.cal-chip.is-draft    { opacity: .9; border: 1px dashed rgba(255,255,255,.7); }
+.cal-chip .chip-label { overflow: hidden; text-overflow: ellipsis; }
+.cal-more { font-size: .68rem; color: #5b6f82; font-weight: 600; padding-left: 2px; }
+
+/* ============ MODALE: pill stato / giorni ============ */
+.stato-group, .giorni-group { display: flex; flex-wrap: wrap; gap: .5rem; }
+.stato-pill, .giorno-pill {
+  display: inline-flex; align-items: center; gap: .4rem;
+  border: 1px solid #c5ced6; border-radius: 999px;
+  padding: .3rem .75rem; cursor: pointer; font-size: .85rem; margin: 0;
+  transition: border-color .12s, background .12s;
+}
+.giorno-pill { width: 2.4rem; height: 2.4rem; justify-content: center; padding: 0; border-radius: 50%; font-weight: 600; }
+.stato-pill input, .giorno-pill input { position: absolute; opacity: 0; pointer-events: none; }
+.stato-pill:has(input:checked) { border-color: var(--p-primary); background: #eaf2fb; font-weight: 600; }
+.giorno-pill:has(input:checked) { border-color: var(--p-primary); background: var(--p-primary); color: #fff; }
+
+/* spaziatura campi nella modale: forzo label statiche (no floating) per
+   evitare che la label assoluta si sovrapponga al campo precedente */
+#modal-intervento .modal-body .form-group,
+#modal-intervento .modal-body .select-wrapper { position: relative; margin: 0 0 1.3rem; }
+#modal-intervento .modal-body .form-group label,
+#modal-intervento .modal-body .select-wrapper label {
+  position: static; transform: none; top: auto; left: auto;
+  display: block; margin-bottom: .3rem;
+  font-size: .8rem; font-weight: 600; color: #5b6f82;
+}
+#modal-intervento .modal-body .form-group input,
+#modal-intervento .modal-body .form-group textarea { margin-top: 0; }
+#modal-intervento .form-label-static { margin-top: .25rem; }
+#modal-intervento .stato-group { margin-bottom: 1.3rem; }
+
+#ripeti-box { border-top: 1px solid #e4e9ed; margin-top: .25rem; padding-top: 1rem; }
+#ripeti-box .form-check { margin-bottom: 0; }
+#ripeti-dettagli { margin-top: .75rem; }
+
+@media (max-width: 575.98px) {
+  .cal-cell { min-height: 74px; }
+  .cal-chip .chip-label { display: none; }
+  .cal-chip { justify-content: center; padding: 2px; }
+  .month-label { min-width: 7rem; font-size: .95rem; }
+}
+
+/* ================= v3: login, controlli responsive, mobile ================= */
+.manteiner-sub { font-size: .78rem; color: #5b6f82; margin-top: .1rem; }
+
+.controls { display: flex; flex-wrap: wrap; align-items: flex-end; gap: .75rem 1.25rem; }
+.controls-user { flex: 1 1 240px; min-width: 0; }
+.controls-nav { display: flex; align-items: center; gap: .75rem; flex: 0 0 auto; margin-left: auto; }
+.btn-nuovo { white-space: nowrap; }
+
+/* pallini compatti (usati su schermi piccoli) */
+.cal-dots { display: none; flex-wrap: wrap; gap: 3px; margin-top: 3px; align-content: flex-start; }
+.cal-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.cal-more-dot { font-size: .6rem; font-weight: 700; color: #5b6f82; line-height: 8px; }
+
+/* dettaglio giorno */
+#day-list { display: flex; flex-direction: column; gap: .4rem; margin-bottom: .5rem; }
+.day-item { display: flex; align-items: center; gap: .6rem; width: 100%; text-align: left;
+  background: #fff; border: 1px solid #dfe4e8; border-radius: 8px; padding: .55rem .6rem; cursor: pointer; }
+.day-item:hover { border-color: var(--p-primary); background: #f4f8fd; }
+.day-bar { width: 6px; align-self: stretch; border-radius: 4px; flex: none; }
+.day-txt { display: flex; flex-direction: column; line-height: 1.25; min-width: 0; flex: 1; }
+.day-txt b { font-size: .9rem; }
+.day-luogo { font-size: .78rem; color: #5b6f82; overflow: hidden; text-overflow: ellipsis; }
+.day-check { color: var(--st-eseguito,#008055); font-weight: 700; }
+
+/* ---- Tablet/telefono ---- */
+@media (max-width: 767.98px) {
+  .controls-nav { margin-left: 0; width: 100%; flex-direction: column; align-items: stretch; gap: .5rem; }
+  .month-nav { justify-content: center; }
+  .btn-nuovo { width: 100%; display: inline-flex; align-items: center; justify-content: center; }
+  .month-label { min-width: 6.5rem; font-size: .95rem; }
+  .cal-grid { gap: 3px; }
+  .cal-cell { min-height: 58px; padding: 3px; border-radius: 5px; }
+  .cal-items { display: none; }     /* niente etichette: solo pallini */
+  .cal-dots { display: flex; }
+  .cal-day { font-size: .75rem; width: 1.3rem; }
+  .cal-head { font-size: .62rem; padding: .2rem 0; }
+  .legenda { font-size: .72rem; gap: .5rem .8rem; }
+}
+@media (max-width: 359.98px) {
+  .cal-cell { min-height: 48px; }
+  .cal-dot { width: 7px; height: 7px; }
+}
+
+/* ================= combobox oggetto/zona con ricerca ================= */
+.combo { position: relative; }
+.combo-list {
+  position: absolute; left: 0; right: 0; top: 100%;
+  z-index: 1085; margin: 2px 0 0; padding: .25rem 0; list-style: none;
+  background: #fff; border: 1px solid #c5ced6; border-radius: 6px;
+  max-height: 240px; overflow-y: auto; box-shadow: 0 8px 20px rgba(0,0,0,.14);
+}
+.combo-list li { padding: .5rem .75rem; cursor: pointer; font-size: .9rem; line-height: 1.25; }
+.combo-list li.active, .combo-list li:hover { background: #eaf2fb; }
+.combo-empty { padding: .5rem .75rem; color: #8a97a3; font-size: .85rem; cursor: default; }
+#f-oggetto-input { background-image: none; }
+
+/* (spostato dalla pagina) giorni con interventi scaduti */
+  .cal-cell.overdue{
+    border:2px solid #dc3545;
+  }
+  .swatch-overdue{
+    background:#fff !important;
+    border:2px solid #dc3545;
+    box-sizing:border-box;
+}

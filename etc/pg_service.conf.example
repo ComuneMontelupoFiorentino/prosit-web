@@ -1,0 +1,49 @@
+# local/pg_service.conf — connessioni PostgreSQL di Prosit (leggibile solo dal proprietario e da www-data)
+# Unico posto con le password. Generato da install.sh con le password dei ruoli prosit_*.
+#
+# [servizio]      = lettura (ruolo prosit_ro, solo SELECT sugli oggetti esposti)
+# [servizio_rw]   = scrittura (ruolo prosit_rw, solo dove l'API scrive)
+# Se una sezione _rw manca, le scritture usano la sezione di lettura (e falliscono:
+# prosit_ro e' in sola lettura). Vedi sql/10_grant_prosit.sql.
+
+[segnalazioni_23]
+host=localhost
+port=5432
+dbname=segnalazioni_23
+user=prosit_ro
+password=__RO_PASS__
+
+[segnalazioni_23_rw]
+host=localhost
+port=5432
+dbname=segnalazioni_23
+user=prosit_rw
+password=__RW_PASS__
+
+[llpp]
+host=localhost
+port=5432
+dbname=llpp
+user=prosit_ro
+password=__RO_PASS__
+
+[vp]
+host=localhost
+port=5432
+dbname=vp
+user=prosit_ro
+password=__RO_PASS__
+
+[vp_rw]
+host=localhost
+port=5432
+dbname=vp
+user=prosit_rw
+password=__RW_PASS__
+
+[ip_2020_2022]
+host=localhost
+port=5432
+dbname=ip_2020_2022
+user=prosit_ro
+password=__RO_PASS__

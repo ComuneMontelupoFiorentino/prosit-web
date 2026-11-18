@@ -1,0 +1,414 @@
+body {
+  font-family: Arial, sans-serif;
+  background: #f9f9f9;
+  margin: 0;
+  padding: 20px;
+}
+
+.container {
+  width: 450px;
+  background: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,.1);
+}
+
+h1 {
+  font-size: 18px;
+  margin-bottom: 20px;
+}
+
+/* Struttura generale a griglia */
+.stat-row {
+  display: grid;
+  grid-template-columns: 150px 150px 200px; /* colonne fisse */
+  align-items: center;
+  text-align: left;
+  row-gap: 2px;
+  padding: 4px 0;
+  font-size: 14px;
+}
+
+/* Terza colonna: allineamento verticale e destra */
+.stat-row div:nth-child(3) {
+  display: flex;
+  align-items: flex-end;    /* allineati a destra */
+  width: 100%;              /* occupa tutta la colonna */
+  text-align: right;
+  gap: 2px;
+}
+
+/* Ogni span numerico ha larghezza fissa e font monospazio */
+.stat-row div:nth-child(3) span {
+  display: inline-block;
+  width: 70px; /* stessa larghezza per tutti → allineamento perfetto */
+  text-align: right;
+  font-family: "Courier New", monospace; /* mantiene allineamento ottico */
+}
+
+/* Numero principale più grande */
+.stat-row .main-number {
+  font-weight: bold;
+  font-size: 15px;
+}
+
+/* Valori secondari */
+.stat-row .complex {
+  font-size: 14px;
+  color: gray;
+  font-style: italic;
+}
+
+.stat-row.header {
+  font-weight: bold;
+  border-bottom: 1px solid #ccc;
+}
+
+/* Colori di stato */
+.stat-accettati   { background: #c6c6c6; padding: 2px 5px; }
+.stat-convalidati { background: #c90002; color: #fff; padding: 2px 5px; }
+.stat-assegnati   { background: #ff3b02; color: #fff; padding: 2px 5px; }
+.stat-presi       { background: #ff8102; color: #fff; padding: 2px 5px; }
+.stat-programmati { background: #ffe32e; padding: 2px 5px; }
+.stat-eseguiti    { background: #b6e32e; padding: 2px 5px; }
+.stat-chiusi      { background: #1ea711; color: #fff; padding: 2px 5px; }
+.stat-sospesi     { background: #06c; color: #fff; padding: 2px 5px; margin-left: 50px; }
+
+.total {
+  color: #030303;
+  padding: 2px 5px;
+  text-align: right;
+}
+
+/* Evidenzia numeri admin */
+.admin-issue-accettati    { color: #c6c6c6; font-weight: bolder; font-size: 20px; }
+.admin-issue-convalidati  { color: #c90002; font-weight: bolder; font-size: 20px; }
+.admin-issue-assegnati    { color: #ff3b02; font-weight: bolder; font-size: 20px; }
+.admin-issue-presi        { color: #ff8102; font-weight: bolder; font-size: 20px; }
+.admin-issue-programmati  { color: #ffe32e; font-weight: bolder; font-size: 20px; }
+.admin-issue-eseguiti     { color: #b6e32e; font-weight: bolder; font-size: 20px; }
+.admin-issue-chiusi       { color: #1ea711; font-weight: bolder; font-size: 20px; }
+.admin-issue-sospesi      { color: #06c; font-weight: bolder; font-size: 20px; }
+
+.asterisk {
+  margin-right: 15px;
+}
+
+        .filter-box {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+            margin-bottom: 25px;
+
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .filter-box h1 {
+            margin: 0;
+            font-size: 22px;
+        }
+
+        .filter-box form {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-box input,
+        .filter-box button {
+            padding: 6px 10px;
+        }
+
+        @media (max-width: 768px) {
+            .filter-box {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        
+/* ===== BASE ===== */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #f4f5f7;
+  font-family: "Titillium Web", system-ui, -apple-system, sans-serif;
+  color: #212529;
+}
+
+main {
+  padding: 1rem;
+}
+
+/* ===== CARD ===== */
+.record-card {
+  max-width: 900px;
+  margin: 1.5rem auto;
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid #dee2e6;
+  box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+  overflow: hidden;
+}
+
+.record-card > header {
+  background: #0066cc;
+  color: #fff;
+  padding: 1.3rem 1.6rem;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+/* ===== BODY ===== */
+.record-body {
+  padding: 1.6rem;
+}
+
+h1 {
+  margin-top: 0;
+  font-size: 1.6rem;
+  color: #005ca9;
+}
+
+/* ===== DETAILS ===== */
+details {
+  margin-top: 1.2rem;
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  padding: 0.8rem 1.2rem;
+  background: #fafbfc;
+}
+
+summary {
+  font-weight: 600;
+  color: #005ca9;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+summary:hover {
+  text-decoration: underline;
+}
+
+/* ===== FIELD ROW ===== */
+.field-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0.4rem 0;
+}
+
+.field-label {
+  flex: 0 0 40%;
+  font-weight: 600;
+}
+
+.field-value {
+  flex: 0 0 60%;
+  word-break: break-word;
+}
+
+/* ===== MAP BUTTON ===== */
+.map-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  background-color: #0066cc;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: 600;
+  margin-top: 0.5rem;
+  transition: background-color 0.2s ease;
+}
+
+.map-btn:hover {
+  background-color: #004a99;
+}
+
+/* ===== TIMELINE ===== */
+.it-timeline-wrapper {
+  position: relative;
+  margin-top: 1rem;
+  padding-left: 2rem;
+}
+
+.it-timeline-wrapper::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  background-color: #0066cc;
+}
+
+.timeline-element {
+  position: relative;
+  margin-bottom: 1.6rem;
+  padding-left: 1rem;
+  transition: background 0.2s ease;
+}
+
+.timeline-element:hover {
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+/* pallini standard */
+.timeline-element::before {
+  width: 14px;
+  height: 14px;
+  background-color: #c0c0c0;  /* colore pallini non attivi */
+  border-radius: 50%;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px #c0c0c0;
+}
+
+/* Stati */
+.timeline-element.stato-eseguita::before {
+  background-color: #198754;
+  box-shadow: 0 0 0 2px #198754;
+}
+
+/* pallino ultimo (lo stato corrente) */
+.timeline-element.ultimo::before {
+  width: 20px;
+  height: 20px;
+  background-color: #0066cc; /* o lo stesso colore della classe dello stato */
+  box-shadow: 0 0 0 2px #0066cc;
+}
+.title-accettato {
+color: #c6c6c6;
+}
+.title-convalidato {
+color: #c90002;
+}
+.title-assegnato {
+color: #c90002;
+}
+
+.timeline-date {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6c757d;
+}
+
+.timeline-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0.3rem 0;
+  color: #005ca9;
+}
+
+.timeline-content p {
+  margin: 0.2rem 0;
+}
+
+.timeline-content small {
+  font-size: 0.8rem;
+  color: #6c757d;
+}
+
+/* ===== ABORTED BOX ===== */
+.detailsAbortedIssue {
+  border: 2px solid #bf0a81;
+  background-color: ghostwhite;
+}
+
+.detailsAbortedIssue summary {
+  color: #bf0a81;
+  text-align: center;
+  font-family: monospace;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 480px) {
+
+  .record-card {
+    margin: 0.5rem;
+    border-radius: 12px;
+  }
+
+  .record-card > header {
+    font-size: 1.2rem;
+  }
+
+  .field-label,
+  .field-value {
+    flex: 0 0 100%;
+    font-size: 0.9rem;
+  }
+
+}
+.ticket-header {
+    color: #fff;
+    padding: 1.3rem 1.6rem;
+    font-size: 1.5rem;
+    font-weight: 600;
+    border-radius: 6px 6px 0 0;
+}
+
+/* Colori dinamici per stato */
+.ticket-header.accettata { background-color: #1565c0; }
+.ticket-header.convalidata { background-color: #283593; }
+.ticket-header.assegnata { background-color: #6a1b9a; }
+.ticket-header.presa-in-carico { background-color: #00838f; }
+.ticket-header.programmata { background-color: #ef6c00; }
+.ticket-header.eseguita { background-color: #2e7d32; }
+.ticket-header.completata { background-color: #1b5e20; }
+.ticket-header.sospesa { background-color: #c62828; }
+.ticket-header.annullata { background-color: #757575; }
+
+/* Default se stato sconosciuto */
+.ticket-header { background-color: #0066cc; }
+.top-buttons {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+.top-buttons button {
+    font-size: 18px;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    background-color: white;
+}
+.top-buttons button:hover { opacity: 0.85; }
+
+/* Header dinamico */
+.ticket-header { color: #fff; padding: 1.3rem 1.6rem; font-size:1.5rem; font-weight:600; border-radius:6px 6px 0 0; }
+.ticket-header.accettata { background-color: #c6c6c6; }
+.ticket-header.convalidata { background-color: #c90002; }
+.ticket-header.assegnata { background-color: #ff3b02; }
+.ticket-header.presa-in-carico { background-color: #ff8102; }
+.ticket-header.programmata { background-color: #ffe32e; }
+.ticket-header.eseguita { background-color: #b6e32e; }
+.ticket-header.completata { background-color: #1ea711; }
+.ticket-header.sospesa { background-color: #06c; }
+.ticket-header.annullata { background-color: #757575; }
+.ticket-header { background-color: #0066cc; } /* default */
+
+/* ===== aggiunte Prosit ===== */
+h2.errori { font-size: 15px; }
+body.timing { font-family: "Titillium Web", sans-serif; font-size: 13px; padding: 5px; margin: 0; max-width: 100%; overflow-x: hidden; }
+body.timing h5 { font-size: 14px; margin: 8px 0 4px; font-weight: 700; }
+.timing-table { width: 100%; border-collapse: collapse; font-size: 12px; word-break: break-word; }
+.timing-table th, .timing-table td { padding: 2px 4px; border-bottom: 1px solid #dee2e6; text-align: left; vertical-align: top; }
+.timing-table tbody tr:nth-child(odd) { background: #f8f9fa; }
+.timing-docs { list-style: none; margin: 0; padding: 0; }
+
+
+input, textarea, .uneditable-input {
+  width: 150px !important;
+}

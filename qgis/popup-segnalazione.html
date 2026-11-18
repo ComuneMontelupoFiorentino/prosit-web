@@ -1,0 +1,22 @@
+<!--
+  POPUP QGIS — layer delle segnalazioni (segn.segn_id)
+  I dati semplici li mostra QGIS; cronologia, allegati e comunicazioni (1:n)
+  arrivano dalla scheda esterna incorporata. Stesso aspetto in entrambe le parti.
+-->
+<div class="p-card">
+  <div class="p-head" data-status="[% regexp_replace(lower("stato_segn"), '[^a-z0-9]+', '-') %]">
+    <div class="p-toolbar"><span class="p-title">[% coalesce("seg_i_rek_alias", 'Ticket ' || "seg_id") %]</span></div>
+    <span class="p-status">[% "stato_segn" %]</span>
+  </div>
+  <div class="p-body">
+    <h1>[% "seg_t_mat" %]</h1>
+    <details class="p-section" open>
+      <summary>Richiesta</summary>
+      <div class="p-field"><span class="p-label">Oggetto</span><span class="p-value">[% "seg_o_ogg" %]</span></div>
+      <div class="p-field"><span class="p-label">Descrizione</span><span class="p-value">[% "seg_o_desc" %]</span></div>
+      <div class="p-field"><span class="p-label">Data creazione</span><span class="p-value">[% format_date("seg_s_ac_d", 'dd/MM/yyyy') %]</span></div>
+      <div class="p-field"><span class="p-label">Via</span><span class="p-value">[% trim(coalesce("seg_l_ind", '') || ' ' || coalesce("seg_l_civ", '')) %]</span></div>
+    </details>
+    <div class="p-embed" data-title="Scheda segnalazione" data-src="/lizmap/prosit/schede/disservizio.html?seg_id=[% "seg_id" %]&amp;parti=cronologia,allegati,comunicazioni"></div>
+  </div>
+</div>

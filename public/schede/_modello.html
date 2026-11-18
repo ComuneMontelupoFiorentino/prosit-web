@@ -1,0 +1,52 @@
+<!doctype html>
+<!--
+  MODELLO DI SCHEDA — copiare come  nome.html + nome.js  (senza il trattino basso:
+  i file che iniziano con "_" non vengono serviti da Apache).
+  Regole: niente <style> ne' <script> in linea, niente CDN; stili solo in ../assets/prosit.css.
+-->
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <link rel="icon" href="../../assets/favicon/favicon.ico">
+  <title>Scheda</title>
+  <link rel="stylesheet" href="../assets/prosit.css">
+</head>
+<body class="p-sheet">
+  <div id="app-loader" class="p-loader"><span class="p-spinner" aria-hidden="true"></span>Caricamento dati in corso…</div>
+  <div id="app-error" class="p-error" role="alert" hidden></div>
+
+  <main id="app-content" hidden>
+    <article class="p-card">
+      <header id="ticket-header" class="p-head">
+        <div class="p-toolbar">
+          <span id="header-alias" class="p-title"></span>
+          <button type="button" class="btn btn-small" data-action="print" title="Stampa"><i class="icon-print" aria-hidden="true"></i></button>
+          <button type="button" class="btn btn-small" data-action="reload" title="Aggiorna"><i class="icon-refresh" aria-hidden="true"></i></button>
+        </div>
+        <p id="header-status" class="p-status"></p>
+      </header>
+      <div class="p-body">
+        <h1 id="titolo"></h1>
+        <details class="p-section" open>
+          <summary>Dati principali</summary>
+          <div id="campi"></div>
+        </details>
+        <details class="p-section">
+          <summary>Storico</summary>
+          <div id="storico" class="p-timeline"></div>
+        </details>
+        <details class="p-section">
+          <summary>Allegati (<span id="n-allegati">0</span>)</summary>
+          <ul id="allegati" class="p-files"></ul>
+        </details>
+      </div>
+    </article>
+  </main>
+
+  <script src="../assets/prosit.js"></script>
+  <script src="../assets/prosit-api-v2.js"></script>
+  <script src="_modello.js"></script>
+</body>
+</html>

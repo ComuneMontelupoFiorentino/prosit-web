@@ -1,0 +1,29 @@
+# Vecchi indirizzi (relativi alla cartella www di Lizmap) -> nuovi (relativi a /lizmap/prosit)
+# tipo     vecchio percorso                                                       nuovo
+# html     pagina statica: reindirizza nel browser mantenendo ?parametri
+# redirect script PHP: redirect 302 mantenendo ?parametri
+# include  script PHP chiamato da macchine: esegue il nuovo codice sullo stesso indirizzo (POST compresi)
+# 4a colonna "fisso": indirizzo usato da sistemi che non si possono riconfigurare (stazione meteo,
+#   app QField): resta anche con  install.sh --legacy minimo  ; gli altri si tolgono quando il
+#   registro  bin/prosit legacy:report  mostra che nessuno li usa piu'.
+html      gestione-disservizi/rekla-info-sheet/schedaDisservizio.html              schede/disservizio.html
+html      gestione-disservizi/rekla-info-sheet/schedaDisservizioBit.html           schede/disservizio-bit.html
+html      rekla-info-sheet/schedaDisservizio.html                                  schede/disservizio.html
+html      rekla-info-sheet/schedaDisservizioBit.html                               schede/disservizio-bit.html
+html      attivita-sul-territorio/manomissioni-info-sheet/manomissioni.html        schede/manomissioni.html
+html      02-patrimonio-comunale-impianti/schedaPaliLuce.html                      schede/pali-luce.html
+redirect  gestione-disservizi/daily-log-tvcc/index.php                             app/registro-tvcc/
+redirect  daily-log-tvcc/index.php                                                 app/registro-tvcc/
+redirect  gestione-disservizi/calendar-green-works/index.php                       app/calendario-verde/
+redirect  vp-works-planned/index.php                                               app/calendario-verde/
+redirect  gestione-disservizi/popup-ticket-data-report/rekla.php                   app/report-ticket/
+redirect  gestione-disservizi/popup-ticket-data-report/rekla_bit.php               app/report-ticket/bit.php
+redirect  gestione-disservizi/popup-ticket-data-report/report_timing.php           app/report-ticket/timing.php
+redirect  opendata/admin-service/services-admin.php                                app/opendata-admin/
+redirect  opendata/admin-service/index.php                                         app/opendata-admin/
+redirect  gestione-disservizi/documents/document_proxy.php                         api/index.php/v1/documenti/rekla
+include   09-ambiente/get_data_station.php                                         hooks/meteo/index.php   fisso
+include   ws-censimento-qfield/index.php                                           hooks/qfield/index.php   fisso
+include   attivita-sul-territorio/web-service-sopralluoghi/open_todos.php          hooks/sopralluoghi/open_todos.php
+include   attivita-sul-territorio/web-service-sopralluoghi/sync_on_open.php        hooks/sopralluoghi/sync_on_open.php
+include   attivita-sul-territorio/web-service-sopralluoghi/sync_manomissioni_status.php  hooks/sopralluoghi/sync_manomissioni_status.php

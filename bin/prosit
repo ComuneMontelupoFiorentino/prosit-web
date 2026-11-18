@@ -1,0 +1,591 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Strumento di amministrazione di Prosit.
+ *
+ *   /usr/local/bin/prosit/prosit-web/bin/prosit check                 verifica configurazione, Lizmap, database, permessi (come utente corrente;
+ *                                             la verifica come www-data la fa install.sh tramite /v1/health?full=1)
+ *   /usr/local/bin/prosit/prosit-web/bin/prosit key:new NOME          nuova chiave macchina (stampa la riga per local/api_keys.php)
+ *   /usr/local/bin/prosit/prosit-web/bin/prosit find-urls [CARTELLA...]   vecchi indirizzi nei progetti QGIS (.qgs) e nuovi equivalenti
+ *   /usr/local/bin/prosit/prosit-web/bin/prosit qfield:import-tokens VECCHIO_config.json   copia i token in local/qfield.json
+ *   /usr/local/bin/prosit/prosit-web/bin/prosit lizmap-js [--prova] [CARTELLA]   installa i JS dei progetti da lizmap-js/ (con backup)
+ *   /usr/local/bin/prosit/prosit-web/bin/prosit popup:elenco [CARTELLA]   popup di tutti i progetti: nuovi, da convertire, da rifare a mano
+ *   /usr/local/bin/prosit/prosit-web/bin/prosit popup:converti [--prova] [CARTELLA]   converte i popup "record-card" al linguaggio comune (con copia .bak)
+ *   /usr/local/bin/prosit/prosit-web/bin/prosit popup:pulisci [--prova] [CARTELLA]   toglie dai popup QGIS le parti morte (riduzione sfalci, iframe_content)
+ *   /usr/local/bin/prosit/prosit-web/bin/prosit legacy:report [GIORNI]   chi usa ancora i vecchi indirizzi (predefinito: 30 giorni)
+ */
+declare(strict_types=1);
+
+if (PHP_SAPI !== 'cli') {
+    exit(1);
+}
+require dirname(__DIR__) . '/src/bootstrap.php';
+
+use Prosit\Db\Db;
+use Prosit\Db\Schema;
+use Prosit\Support\Config;
+use Prosit\Support\PopupConverter;
+
+$cmd = $argv[1] ?? 'help';
+$args = array_slice($argv, 2);
+$errors = 0;
+
+/**
+ * Testo per il contenuto di un elemento XML del progetto QGIS. I caratteri di controllo
+ * (es. tabulazione verticale incollata da Word) tornano come riferimenti &#x..; come li scrive
+ * QGIS: scritti "nudi" rendono il file illeggibile a QGIS Server (GetCapabilities 400).
+ */
+function prosit_xml_text(string $s): string
+{
+    $s = htmlspecialchars($s, ENT_QUOTES | ENT_XML1 | ENT_SUBSTITUTE, 'UTF-8');
+    return preg_replace_callback('/[\x00-\x08\x0B\x0C\x0E-\x1F]/', fn ($m) => sprintf('&#x%x;', ord($m[0])), $s);
+}
+
+/** Il progetto QGIS modificato e' ancora XML ben formato? */
+function prosit_xml_ok(string $xml): bool
+{
+    $prev = libxml_use_internal_errors(true);
+    $d = new DOMDocument();
+    $ok = $d->loadXML($xml, LIBXML_PARSEHUGE | LIBXML_NONET);
+    libxml_clear_errors();
+    libxml_use_internal_errors($prev);
+    return $ok;
+}
+
+function out(string $status, string $msg): void
+{
+    global $errors;
+    $colors = ['OK' => "\033[32m", 'ERR' => "\033[31m", 'WARN' => "\033[33m", 'INFO' => "\033[36m"];
+    $tty = function_exists('posix_isatty') && posix_isatty(STDOUT);
+    $tag = str_pad($status, 4);
+    echo ($tty ? ($colors[$status] ?? '') . $tag . "\033[0m" : $tag) . '  ' . $msg . PHP_EOL;
+    if ($status === 'ERR') {
+        $errors++;
+    }
+}
+
+switch ($cmd) {
+    /* ------------------------------------------------------------------ */
+    case 'check':
+        $who = function_exists('posix_getpwuid') ? (posix_getpwuid(posix_geteuid())['name'] ?? '?') : '?';
+        out('INFO', "Prosit " . PROSIT_VERSION . " in " . PROSIT_ROOT . ", configurazione in " . PROSIT_ETC . " (utente: $who)");
+
+        // configurazione
+        $local = getenv('PROSIT_CONFIG') ?: PROSIT_ETC . '/prosit.php';
+        out(is_readable($local) ? 'OK' : 'WARN', "configurazione locale: $local" . (is_readable($local) ? '' : ' (assente o non leggibile: valgono i valori predefiniti)'));
+        foreach ([$local, Db::serviceFile(), (string) Config::get('auth.api_keys_file')] as $f) {
+            if (is_file($f)) {
+                $perm = fileperms($f) & 0777;
+                out(($perm & 0007) ? 'ERR' : 'OK', sprintf('permessi %s: %o%s', $f, $perm, ($perm & 0007) ? ' (leggibile da tutti! usare 0640 + ACL di lettura per www-data)' : ''));
+            }
+        }
+        if ((bool) Config::get('debug', false)) {
+            out('WARN', 'debug attivo: le risposte d\'errore contengono dettagli interni');
+        }
+
+        // cartelle scrivibili
+        foreach (['log', 'cache', 'data'] as $d) {
+            $p = Config::varPath($d);
+            out(is_dir($p) && is_writable($p) ? 'OK' : 'ERR', "var/$d scrivibile: $p");
+        }
+
+        // Lizmap e gruppi
+        $www = (string) Config::get('auth.lizmap_www');
+        out(is_dir($www) ? 'OK' : 'ERR', "Lizmap www: $www" . (is_dir($www) ? ' -> ' . realpath($www) : ' (non trovata)'));
+        $ver = @file_get_contents(rtrim($www, '/') . '/../project.xml');
+        if ($ver && preg_match('#<version[^>]*>([^<]+)</version>#', $ver, $m)) {
+            out('INFO', 'versione Lizmap: ' . $m[1]);
+        }
+        // utente e gruppi: li dice Lizmap (Prosit API v2, GET /auth/me)
+        $c = \Prosit\Auth\LizmapApi::check();
+        out($c === 'ok' ? 'OK' : 'ERR', 'Lizmap auth/me (' . Config::get('auth.lizmap_api.url', 'http://127.0.0.1/lizmap/api.php/prosit/v2/auth/me') . '): ' . $c);
+
+        // database
+        out(is_readable(Db::serviceFile()) ? 'OK' : 'ERR', 'pg_service: ' . Db::serviceFile() . ' (' . implode(', ', Db::services()) . ')');
+        // tabelle usate da controller e report
+        $extra = [
+            [(string) Config::get('report.service'), 'buildings.tickets', false],
+            [(string) Config::get('report.service'), 'buildings.list_tickets_v', false],
+        ];
+        foreach ($extra as [$svc, $t, $write]) {
+            try {
+                Db::connect($svc, $write)->query('SELECT 1 FROM ' . Schema::quoteRelation($t) . ' LIMIT 1')->fetch();
+                if ($write) {
+                    $st = Db::connect($svc, true)->prepare("SELECT has_table_privilege(current_user, to_regclass(:t), 'INSERT')");
+                    $st->execute([':t' => $t]);
+                    if (!$st->fetchColumn()) {
+                        throw new RuntimeException('manca INSERT per il ruolo di scrittura');
+                    }
+                }
+                out('OK', sprintf('%-30s %s.%s', '(servizio)', $svc, $t));
+            } catch (Throwable $e) {
+                out('ERR', sprintf('%-30s %s.%s: %s', '(servizio)', $svc, $t, trim(preg_replace('/\s+/', ' ', $e->getMessage()))));
+            }
+        }
+
+        // altri servizi
+        $od = (string) Config::get('opendata.services_path');
+        out(is_file($od) ? 'OK' : 'WARN', "open data services.json: $od" . (is_file($od) ? '' : ' (assente: il pannello parte vuoto)'));
+        $qf = getenv('UPLOADER_CONFIG') ?: PROSIT_ETC . '/qfield.json';
+        out(is_readable($qf) ? 'OK' : 'WARN', "QField: $qf" . (is_readable($qf) ? '' : ' (assente: il servizio QField risponde con errore di configurazione)'));
+        if (is_readable($qf) && str_contains((string) file_get_contents($qf), 'SOSTITUIRE')) {
+            out('ERR', 'QField: il token dell\'app non e\' stato impostato (prosit qfield:import-tokens)');
+        }
+        $keys = \Prosit\Auth\ApiKeys::all();
+        out($keys ? 'OK' : 'WARN', 'chiavi macchina: ' . ($keys ? implode(', ', array_keys($keys)) : 'nessuna'));
+
+        echo PHP_EOL . ($errors ? "Problemi trovati: $errors" : 'Tutto a posto.') . PHP_EOL;
+        exit($errors ? 1 : 0);
+
+    /* ------------------------------------------------------------------ */
+    case 'key:new':
+        $name = $args[0] ?? '';
+        if (!preg_match('/^[a-z0-9_-]{2,40}$/', $name)) {
+            fwrite(STDERR, "Uso: prosit key:new NOME   (minuscole, cifre, - e _)\n");
+            exit(2);
+        }
+        $key = rtrim(strtr(base64_encode(random_bytes(32)), '+/', '-_'), '=');
+        echo "Chiave per '$name' (mostrata solo ora, va configurata sul dispositivo):\n\n  $key\n\n";
+        echo "Riga da aggiungere in " . PROSIT_ETC . "/api_keys.php:\n\n";
+        echo "  '$name' => ['sha256' => '" . hash('sha256', $key) . "'],\n";
+        exit(0);
+
+    /* ------------------------------------------------------------------ */
+    case 'find-urls':
+        $dirs = $args ?: ['/home/prosit2/lizmap-project', '/srv/data'];
+        $map = [
+            '#(?:gestione-disservizi/)?rekla-info-sheet/schedaDisservizio\.html#' => 'prosit/schede/disservizio.html',
+            '#(?:gestione-disservizi/)?rekla-info-sheet/schedaDisservizioBit\.html#' => 'prosit/schede/disservizio-bit.html',
+            '#(?:attivita-sul-territorio/)?manomissioni-info-sheet/manomissioni\.html#' => 'prosit/schede/manomissioni.html',
+            '#(?:02-patrimonio-comunale-impianti/)?schedaPaliLuce\.html#' => 'prosit/schede/pali-luce.html',
+            '#(?:gestione-disservizi/)?popup-ticket-data-report/rekla\.php#' => 'prosit/app/report-ticket/',
+            '#(?:gestione-disservizi/)?popup-ticket-data-report/rekla_bit\.php#' => 'prosit/app/report-ticket/bit.php',
+            '#(?:gestione-disservizi/)?popup-ticket-data-report/report_timing\.php#' => 'prosit/app/report-ticket/timing.php',
+            '#(?:gestione-disservizi/)?daily-log-tvcc/?#' => 'prosit/app/registro-tvcc/',
+            '#09-ambiente/legenda_incendi\.PNG#' => 'prosit/static/ambiente/legenda_incendi.png',
+            '#(?:gestione-disservizi/)?calendar-green-works#' => 'prosit/app/calendario-verde/',
+            '#opendata/admin-service/services-admin\.php#' => 'prosit/app/opendata-admin/',
+            '#SessionCheckAPI\.php#' => 'prosit/api/index.php/v1/auth/me  (nei JS: PrositLizmap.me(), vedi lizmap-js/)',
+            '#/lizmap/index\.php$#' => 'index.php  (stesso server: basta togliere http://IP)',
+        ];
+        $found = 0;
+        foreach ($dirs as $dir) {
+            if (!is_dir($dir)) {
+                continue;
+            }
+            $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS));
+            foreach ($it as $f) {
+                if (!preg_match('/\.(qgs|cfg|js|html)$/i', $f->getFilename()) || $f->getSize() > 200 * 1024 * 1024) {
+                    continue;
+                }
+                $txt = (string) @file_get_contents($f->getPathname());
+                if (!preg_match_all('#(?:https?://[0-9.]+|https?://[a-z0-9.-]+)?/lizmap/[A-Za-z0-9_./-]+\.(?:html|php|PNG)#', $txt, $m)) {
+                    continue;
+                }
+                foreach (array_unique($m[0]) as $url) {
+                    // indirizzi di Prosit e di Lizmap stesso (relativi) sono gia' corretti
+                    if (str_contains($url, '/lizmap/prosit/') || str_contains($url, '/index.php/view/') || $url === '/lizmap/index.php') {
+                        continue;
+                    }
+                    $new = null;
+                    foreach ($map as $re => $to) {
+                        if (preg_match($re, $url)) {
+                            $new = '/lizmap/' . $to;
+                        }
+                    }
+                    $oldVm = preg_match('#^https?://#', $url) ? '   [indirizzo assoluto: punta al vecchio server, non passa dai file ponte]' : '';
+                    echo $f->getPathname() . "\n    " . $url . $oldVm . "\n -> " . ($new ?? '(pagina non portata in Prosit: verificare)') . "\n";
+                    $found++;
+                }
+            }
+        }
+        echo $found ? "\n$found indirizzi da aggiornare. Quelli relativi (/lizmap/...) funzionano finche' ci sono i file ponte;\nquelli assoluti (http://IP/...) vanno corretti comunque.\n" : "Nessun vecchio indirizzo trovato in: " . implode(', ', $dirs) . "\n";
+        echo "Suggerimento: nei popup QGIS usare una variabile di progetto, es. [% @prosit_base %]/schede/disservizio.html?seg_id=[% \"seg_id\" %]\n";
+        exit(0);
+
+    /* ------------------------------------------------------------------ */
+    case 'lizmap-js':
+        $dry = in_array('--prova', $args, true);
+        $dest = rtrim((string) (array_values(array_filter($args, fn ($a) => $a !== '--prova'))[0] ?? '/srv/data'), '/');
+        $src = PROSIT_ROOT . '/lizmap-js';
+        if (!is_dir($dest)) {
+            fwrite(STDERR, "Cartella dei progetti non trovata: $dest\n");
+            exit(2);
+        }
+        // 1. backup di tutti i JS attuali
+        if (!$dry) {
+            $tgz = (getenv('HOME') ?: sys_get_temp_dir()) . '/backup_js_' . date('Ymd_His') . '.tgz';
+            $dirs = array_map(fn ($d) => substr($d, strlen($dest) + 1), glob($dest . '/*/media/js', GLOB_ONLYDIR) ?: []);
+            if ($dirs) {
+                exec('tar czf ' . escapeshellarg($tgz) . ' -C ' . escapeshellarg($dest) . ' ' . implode(' ', array_map('escapeshellarg', $dirs)) . ' 2>&1', $o, $rc);
+                if ($rc !== 0) {
+                    fwrite(STDERR, "Backup non riuscito, non tocco nulla:\n" . implode("\n", $o) . "\n");
+                    exit(1);
+                }
+                out('OK', "backup: $tgz  (ripristino: cd $dest && tar xzf $tgz)");
+            }
+        }
+        // 2. copia dei file aggiornati (solo nei repository che esistono)
+        $n = ['nuovo' => 0, 'aggiornato' => 0, 'uguale' => 0];
+        $it = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($src, FilesystemIterator::SKIP_DOTS));
+        $files = [];
+        foreach ($it as $f) {
+            $rel = substr($f->getPathname(), strlen($src) + 1);
+            if (preg_match('#^[^/]+/media/js/.+\.(js|css)$#', $rel)) {
+                $files[] = $rel;
+            }
+        }
+        sort($files);
+        foreach ($files as $rel) {
+            $repo = $dest . '/' . explode('/', $rel)[0];
+            $to = $dest . '/' . $rel;
+            if (!is_dir($repo)) {
+                out('INFO', "salto $rel (repository assente)");
+                continue;
+            }
+            $state = !is_file($to) ? 'nuovo' : (md5_file($to) === md5_file($src . '/' . $rel) ? 'uguale' : 'aggiornato');
+            $n[$state]++;
+            if ($state === 'uguale') {
+                continue;
+            }
+            if ($dry) {
+                out('INFO', "$state  $rel");
+                continue;
+            }
+            if (!is_dir(dirname($to)) && !@mkdir(dirname($to), 0775, true)) {
+                out('ERR', "non posso creare " . dirname($to));
+                continue;
+            }
+            if (@copy($src . '/' . $rel, $to)) {
+                @chmod($to, 0644);
+                out('OK', "$state  $rel");
+            } else {
+                out('ERR', "non posso scrivere $to (proprietario: " . (function_exists('posix_getpwuid') ? (posix_getpwuid((int) @fileowner($to))['name'] ?? '?') : '?') . ')');
+            }
+        }
+        // 3. file da togliere
+        $del = 0;
+        foreach (file($src . '/DA_CANCELLARE.txt', FILE_IGNORE_NEW_LINES) ?: [] as $line) {
+            $line = trim($line);
+            if ($line === '' || $line[0] === '#' || str_contains($line, '..')) {
+                continue;
+            }
+            $f = $dest . '/' . $line;
+            if (!is_file($f)) {
+                continue;
+            }
+            if ($dry) {
+                out('INFO', "da togliere  $line");
+            } elseif (@unlink($f)) {
+                out('OK', "tolto  $line");
+            } else {
+                out('ERR', "non posso togliere $f");
+            }
+            $del++;
+        }
+        echo "\n" . ($dry ? 'PROVA, nulla modificato: ' : '') . "{$n['nuovo']} nuovi, {$n['aggiornato']} aggiornati, {$n['uguale']} gia' a posto, $del da togliere.\n";
+        if (!$dry && ($n['nuovo'] + $n['aggiornato'] + $del) > 0) {
+            echo "Ricaricare le mappe con Ctrl+F5.\n";
+        }
+        exit($errors ? 1 : 0);
+
+    /* ------------------------------------------------------------------ */
+    case 'popup:elenco':
+    case 'popup:converti':
+        $dry = $cmd === 'popup:elenco' || in_array('--prova', $args, true);
+        $dir = rtrim((string) (array_values(array_filter($args, fn ($a) => $a[0] !== '-'))[0] ?? '/srv/data'), '/');
+        $preview = (getenv('HOME') ?: sys_get_temp_dir()) . '/popup_anteprima';
+        $rows = [];
+        $convertedTotal = 0;
+        foreach (glob($dir . '/*/*.qgs') ?: [] as $f) {
+            $proj = basename(dirname($f)) . '/' . basename($f, '.qgs');
+            $xml = (string) file_get_contents($f);
+            // popup di Lizmap per layer (sorgente qgis / lizmap / auto / form) dal file .cfg
+            $cfg = is_readable($f . '.cfg') ? (json_decode((string) file_get_contents($f . '.cfg'), true) ?: []) : [];
+            $lz = [];
+            foreach ((array) ($cfg['layers'] ?? []) as $name => $l) {
+                $on = in_array(strtolower((string) ($l['popup'] ?? '')), ['true', '1'], true) || ($l['popup'] ?? null) === true;
+                $lz[$name] = $on ? ($l['popupSource'] ?? 'auto') : 'spento';
+            }
+            $changed = 0;
+            $seen = [];
+            preg_match_all('~<layername>([^<]*)</layername>~', $xml, $lnAll, PREG_OFFSET_CAPTURE);
+            $new = preg_replace_callback('~(<mapTip\b[^>]*>)(.*?)(</mapTip>)~s', function ($mm) use ($lnAll, &$rows, &$changed, &$seen, $proj, $lz, $dry, $preview) {
+                $pos = $mm[0][1];
+                $m = array_map(fn ($x) => $x[0], $mm);
+                $layer = '?';
+                foreach ($lnAll[1] as $l) {        // ultimo <layername> prima del popup
+                    if ($l[1] > $pos) {
+                        break;
+                    }
+                    $layer = html_entity_decode($l[0], ENT_QUOTES | ENT_XML1, 'UTF-8');
+                }
+                $html = html_entity_decode($m[2], ENT_QUOTES | ENT_XML1, 'UTF-8');
+                $kind = PopupConverter::classify($html);
+                $out = $m[0];
+                $note = '';
+                $dropped = [];
+                $conv = null;
+                if ($kind === PopupConverter::ALTRO && ($lz[$layer] ?? '') === 'qgis') {
+                    // schema piu' vecchio (tabelle, titoli con <font>): solo i popup che Lizmap usa
+                    $kind = PopupConverter::TABELLA;
+                    $r = PopupConverter::convertTables($html);
+                    if ($r !== null) {
+                        [$conv, $dropped] = $r;
+                    }
+                } elseif ($kind === PopupConverter::DA_CONVERTIRE) {
+                    $conv = PopupConverter::convert($html);
+                }
+                if ($kind === PopupConverter::DA_CONVERTIRE || $kind === PopupConverter::TABELLA) {
+                    preg_match_all('/\[%.*?%\]/s', $html, $a);
+                    preg_match_all('/\[%.*?%\]/s', (string) $conv, $b);
+                    $expected = $a[0];
+                    foreach ($dropped as $d) {           // tolte di proposito (righe "nascondi se vuoto")
+                        $k = array_search($d, $expected, true);
+                        if ($k !== false) {
+                            unset($expected[$k]);
+                        }
+                    }
+                    if ($conv === null || array_values($expected) !== $b[0]) {
+                        $note = 'schema non riconosciuto del tutto: a mano';
+                    } else {
+                        $out = $m[1] . prosit_xml_text($conv) . $m[3];
+                        $changed++;
+                        $note = $dry ? 'da convertire' : 'convertito';
+                        if ($dry) {
+                            $d = $preview . '/' . $proj;
+                            @mkdir($d, 0700, true);
+                            $slug = preg_replace('/[^A-Za-z0-9_-]+/', '_', $layer);
+                            file_put_contents("$d/$slug.prima.html", $html);
+                            file_put_contents("$d/$slug.dopo.html", $conv);
+                        }
+                    }
+                }
+                $key = $layer . '|' . $kind;
+                if (!isset($seen[$key])) {           // le copie negli stili salvati contano una volta
+                    $seen[$key] = true;
+                    if ($note === 'schema non riconosciuto del tutto: a mano') {
+                        // popup in uso con uno schema diverso: copia per studiarli (e convertirli) insieme
+                        $d = $preview . '/_da_rifare';
+                        @mkdir($d, 0700, true);
+                        file_put_contents($d . '/' . preg_replace('/[^A-Za-z0-9_-]+/', '_', $proj . '__' . $layer) . '.html', $html);
+                    }
+                    $rows[] = [$proj, $layer, $kind, $lz[$layer] ?? '-', $note];
+                }
+                return $out;
+            }, $xml, -1, $count, PREG_OFFSET_CAPTURE);
+            if ($changed && !$dry) {
+                $bak = $f . '.prima_conversione_' . date('Ymd_His') . '.bak';
+                if (!prosit_xml_ok((string) $new) && prosit_xml_ok($xml)) {
+                    out('ERR', "$f: il progetto modificato non sarebbe un XML valido, lasciato com'era");
+                    continue;
+                }
+                // scrittura sul file esistente: restano proprietario, permessi e ACL (QGIS Server deve poterlo leggere)
+                if (!@copy($f, $bak) || @file_put_contents($f, $new, LOCK_EX) === false) {
+                    out('ERR', "non posso modificare $f (permessi?)");
+                    continue;
+                }
+                out('OK', "$proj: $changed popup convertiti (copia: " . basename($bak) . ')');
+            }
+            $convertedTotal += $changed;
+        }
+        // riepilogo
+        $groups = [
+            PopupConverter::NUOVO => 'gia\' nel linguaggio comune',
+            PopupConverter::DA_CONVERTIRE => 'schema "record-card"',
+            PopupConverter::TABELLA => 'schema a tabelle/titoli, popup QGIS attivo (convertibile)',
+            PopupConverter::SCHEDA => 'scheda esterna (p-embed / iframe)',
+            PopupConverter::ALTRO => 'ALTRO SCHEMA: da rifare a mano (es. da qgis/popup-modello.html)',
+            PopupConverter::VUOTO => 'senza popup QGIS',
+        ];
+        foreach ($groups as $k => $title) {
+            $list = array_filter($rows, fn ($r) => $r[2] === $k);
+            if ($k === PopupConverter::ALTRO) {
+                // conta davvero solo cio' che Lizmap mostra (sorgente popup "qgis")
+                $all = count($list);
+                $list = array_filter($list, fn ($r) => $r[3] === 'qgis');
+                $title = 'ALTRO SCHEMA con popup QGIS attivo: da rifare (' . ($all - count($list)) . ' altri non usati da Lizmap, non elencati)';
+                // (quelli attivi finiscono nel gruppo "tabelle"; qui restano solo se la conversione non e' riuscita)
+            }
+            if ($k === PopupConverter::VUOTO) {
+                // interessano solo i layer che in Lizmap chiedono il popup "qgis" ma non ne hanno uno
+                $list = array_filter($list, fn ($r) => $r[3] === 'qgis');
+                $title = 'popup "qgis" attivo in Lizmap ma suggerimento vuoto';
+            }
+            echo "\n== " . count($list) . "  $title\n";
+            if ($k === PopupConverter::NUOVO || $k === PopupConverter::SCHEDA) {
+                continue;       // nessuna azione: solo il conteggio
+            }
+            foreach ($list as $r) {
+                printf("   %-45s %-40s popup Lizmap: %-7s %s\n", $r[0], $r[1], $r[3], $r[4]);
+            }
+        }
+        $notQgis = array_filter($rows, fn ($r) => $r[2] !== PopupConverter::VUOTO && !in_array($r[3], ['qgis', '-'], true));
+        if (is_dir($preview . '/_da_rifare')) {
+            echo "\nI popup da rifare sono copiati in $preview/_da_rifare/ (uno per file).\n";
+        }
+        if ($notQgis) {
+            echo "\nNota: " . count($notQgis) . " layer hanno un suggerimento HTML ma in Lizmap il popup e' 'auto/lizmap/spento':\n"
+                . "il suggerimento non viene usato finche' nel plugin Lizmap la sorgente del popup non e' 'QGIS'.\n";
+        }
+        echo "\n";
+        if ($dry && $convertedTotal) {
+            echo "$convertedTotal popup convertibili (contando le copie negli stili salvati). Anteprima (prima/dopo) in $preview/ ; per applicare:\n  "
+                . PROSIT_ROOT . "/bin/prosit popup:converti\n";
+        } elseif (!$dry && $convertedTotal) {
+            echo "$convertedTotal popup convertiti. Se un progetto e' aperto in QGIS, chiuderlo SENZA salvare e riaprirlo.\n";
+        }
+        exit($errors ? 1 : 0);
+
+    /* ------------------------------------------------------------------ */
+    case 'popup:pulisci':
+        // Parti dei popup (maptip) che chiamano pagine mai esistite sui server attuali.
+        // Si lavora sull'HTML del maptip (decodificato dall'XML), poi lo si ricodifica.
+        $dry = in_array('--prova', $args, true);
+        $dir = rtrim((string) (array_values(array_filter($args, fn ($a) => $a !== '--prova'))[0] ?? '/srv/data'), '/');
+        $rules = [
+            'riduzione sfalci (ridSf.php)' => '~(?:<!--\s*=+\s*RIDUZIONE SFALCI\s*=+\s*-->\s*)?<details(?:(?!</?details).)*?(?:riduzione sfalci)(?:(?!</details>).)*?(?:ridSf\.php|rid_sf\.php)(?:(?!</details>).)*</details>~is',
+            'iframe_content.php' => '~(?:<!--[^>]*?iframe[^>]*?-->\s*)?<iframe[^>]*iframe_content\.php[^>]*>\s*</iframe>~is',
+        ];
+        $files = [];
+        foreach (glob($dir . '/*/*.qgs') ?: [] as $f) {
+            $files[] = $f;
+        }
+        $tot = 0;
+        foreach ($files as $f) {
+            $xml = (string) file_get_contents($f);
+            if (!preg_match('/ridSf\.php|rid_sf\.php|iframe_content\.php/', $xml)) {
+                continue;
+            }
+            $changes = [];
+            $new = preg_replace_callback('~(<mapTip\b[^>]*>)(.*?)(</mapTip>)~s', function ($m) use ($rules, &$changes, $xml) {
+                $html = html_entity_decode($m[2], ENT_QUOTES | ENT_XML1, 'UTF-8');
+                $before = $html;
+                foreach ($rules as $label => $re) {
+                    $html = preg_replace($re, '', $html, -1, $c);
+                    if ($c) {
+                        $changes[] = $label;
+                    }
+                }
+                if ($html === $before) {
+                    return $m[0];
+                }
+                return $m[1] . prosit_xml_text($html) . $m[3];
+            }, $xml);
+            $left = preg_match_all('/ridSf\.php|rid_sf\.php|iframe_content\.php/', (string) $new);
+            if ($changes === []) {
+                out('WARN', basename(dirname($f)) . '/' . basename($f) . ": riferimenti trovati ma non in un popup riconosciuto: correggere a mano");
+                continue;
+            }
+            $tot += count($changes);
+            $what = implode(', ', array_map(fn ($k, $v) => "$v x $k", array_keys(array_count_values($changes)), array_count_values($changes)));
+            if ($dry) {
+                out('INFO', basename(dirname($f)) . '/' . basename($f) . ": da togliere $what" . ($left ? " (restano $left riferimenti: a mano)" : ''));
+                continue;
+            }
+            $bak = $f . '.prima_pulizia_' . date('Ymd_His') . '.bak';
+            if (!prosit_xml_ok((string) $new) && prosit_xml_ok($xml)) {
+                    out('ERR', "$f: il progetto modificato non sarebbe un XML valido, lasciato com'era");
+                    continue;
+                }
+                // scrittura sul file esistente: restano proprietario, permessi e ACL (QGIS Server deve poterlo leggere)
+                if (!@copy($f, $bak) || @file_put_contents($f, $new, LOCK_EX) === false) {
+                out('ERR', "non posso modificare $f (permessi?)");
+                continue;
+            }
+            out('OK', basename(dirname($f)) . '/' . basename($f) . ": tolto $what  (copia: " . basename($bak) . ')' . ($left ? "  restano $left riferimenti: a mano" : ''));
+        }
+        echo "\n" . ($dry ? "PROVA, nulla modificato. " : '') . "$tot parti di popup " . ($dry ? 'da togliere' : 'tolte') . ".\n";
+        if (!$dry && $tot) {
+            echo "Se il progetto e' aperto in QGIS, chiuderlo SENZA salvare (altrimenti rimette le parti tolte), poi riaprirlo.\n";
+        }
+        exit($errors ? 1 : 0);
+
+    /* ------------------------------------------------------------------ */
+    case 'legacy:report':
+        $days = max(1, (int) ($args[0] ?? 30));
+        $since = date('Y-m-d H:i:s', time() - $days * 86400);
+        $fixed = [];
+        foreach (file(PROSIT_ROOT . '/deploy/legacy-map.txt', FILE_IGNORE_NEW_LINES) ?: [] as $l) {
+            $c = preg_split('/\s+/', trim($l));
+            if ($l !== '' && $l[0] !== '#' && ($c[3] ?? '') === 'fisso') {
+                $fixed[] = '/lizmap/' . $c[1];
+            }
+        }
+        $hits = [];
+        foreach (glob(Config::varPath('log') . '/legacy-*.log') ?: [] as $file) {
+            foreach (file($file, FILE_IGNORE_NEW_LINES) ?: [] as $line) {
+                if (!preg_match('/^(\S+ \S+) INFO  \[ponte\] vecchio="([^"]*)" da=(\S+) pagina="([^"]*)" client="([^"]*)"/', $line, $m) || $m[1] < $since) {
+                    continue;
+                }
+                $k = preg_replace('/ \((GET|POST|PUT|PATCH|DELETE)\)$/', '', $m[2]);
+                $k = preg_replace('#^(/lizmap/API/index\.php)/.*#', '$1', $k);
+                $h = &$hits[$k];
+                $h['n'] = ($h['n'] ?? 0) + 1;
+                $h['last'] = max($h['last'] ?? '', $m[1]);
+                $src = $m[4] !== '-' ? preg_replace('#^https?://[^/]+#', '', $m[4]) : 'client ' . $m[5] . ' da ' . $m[3];
+                $h['src'][$src] = ($h['src'][$src] ?? 0) + 1;
+                unset($h);
+            }
+        }
+        echo "Vecchi indirizzi usati negli ultimi $days giorni (file ponte nella www di Lizmap):\n\n";
+        $other = 0;
+        uasort($hits, fn ($a, $b) => $b['n'] <=> $a['n']);
+        foreach ($hits as $old => $h) {
+            $isFixed = in_array($old, $fixed, true);
+            $other += $isFixed ? 0 : 1;
+            printf("%5d  %s%s  (ultimo %s)\n", $h['n'], $old, $isFixed ? '  [fisso]' : '', $h['last']);
+            arsort($h['src']);
+            foreach (array_slice($h['src'], 0, 3, true) as $src => $n) {
+                printf("         %4d da %s\n", $n, $src);
+            }
+        }
+        if ($hits === []) {
+            echo "  nessuno\n";
+        }
+        echo "\n";
+        echo $other === 0
+            ? "Nessun vecchio indirizzo in uso oltre a stazione meteo e QField: si puo' pulire la www di Lizmap con\n  bash " . PROSIT_ROOT . "/install.sh --skip-db --yes --legacy minimo\n"
+            : "Prima di  install.sh --legacy minimo  aggiornare chi usa ancora gli indirizzi sopra (popup QGIS: bin/prosit find-urls; JS: cartella lizmap-js).\n";
+        exit(0);
+
+    /* ------------------------------------------------------------------ */
+    case 'qfield:import-tokens':
+        $old = $args[0] ?? '';
+        $dest = $args[1] ?? PROSIT_ETC . '/qfield.json';
+        $o = is_readable($old) ? json_decode((string) file_get_contents($old), true) : null;
+        $d = is_readable($dest) ? json_decode((string) file_get_contents($dest), true) : null;
+        if (!is_array($o) || !is_array($d)) {
+            fwrite(STDERR, "Uso: prosit qfield:import-tokens VECCHIO_config.json [" . PROSIT_ETC . "/qfield.json]\n");
+            exit(2);
+        }
+        $tokens = [];
+        foreach ($o['clients'] ?? [] as $c) {
+            if (!empty($c['id']) && !empty($c['token'])) {
+                $tokens[$c['id']] = $c['token'];
+            }
+        }
+        $n = 0;
+        foreach ($d['clients'] as &$c) {
+            if (isset($tokens[$c['id'] ?? ''])) {
+                $c['token'] = $tokens[$c['id']];
+                $n++;
+            }
+        }
+        unset($c);
+        $tmp = $dest . '.tmp';
+        file_put_contents($tmp, json_encode($d, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n");
+        @chmod($tmp, 0640);
+        if (function_exists('posix_geteuid') && posix_geteuid() === 0) {
+            @chgrp($tmp, 'www-data');
+        }
+        rename($tmp, $dest);
+        echo "Token copiati: $n (client: " . implode(', ', array_keys($tokens)) . ") in $dest\n";
+        exit(0);
+
+    default:
+        $doc = file_get_contents(__FILE__);
+        preg_match('#/\*\*(.*?)\*/#s', $doc, $m);
+        echo preg_replace('/^\s*\* ?/m', '', trim($m[1] ?? '')) . PHP_EOL;
+        exit($cmd === 'help' ? 0 : 2);
+}

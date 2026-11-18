@@ -1,0 +1,39 @@
+body { background: #f5f7f9; }
+  .app-header { background: #0b3d59; color: #fff; }
+  .app-header .badge-warn { background: #ffc72c; color: #17324d; }
+  pre.console-log { background: #0d1117; color: #b7c6d9; padding: 12px; border-radius: 6px; font-size: .78rem; max-height: 340px; overflow-y: auto; line-height: 1.5; }
+  pre.sample { background: #0d1117; color: #d6e2ef; padding: 10px; border-radius: 6px; overflow-x: auto; font-size: .78rem; max-height: 260px; }
+
+  /* Etichette dei campi in grassetto, valori inseriti a peso normale: rende
+     immediatamente distinguibile "nome del campo" da "contenuto digitato". */
+  .form-label { font-weight: 600; color: #17324d; }
+  .form-check-label { font-weight: 500; }
+
+  /* icona di aiuto contestuale accanto alle etichette */
+  .help-icon { color: #6c8299; cursor: help; font-size: .85rem; margin-left: 4px; }
+  .help-icon:hover { color: #06c; }
+
+  /* Gerarchia visiva a colori crescenti di "profondita' di annidamento":
+     sezione dataset (livello 1, tinta piu' tenue) -> singolo dataset
+     (livello 2, bordo blu a sinistra) -> sotto-blocco fetch/relay (livello 3). */
+  fieldset.level-1 { background: #eef3f7; border: 1px solid #cfdce6 !important; }
+  .dataset-block { background: #fff; border: 1px solid #dee2e6; border-left: 4px solid #06c; border-radius: 6px; padding: 14px; margin-bottom: 12px; position: relative; }
+  .fetch-subblock { background: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #ffc72c; border-radius: 6px; padding: 10px; margin-top: 6px; }
+  .accordion-item { background: #fbf9f5; }
+
+  .test-dataset { border: 1px solid #dee2e6; border-radius: 6px; padding: 14px; margin-bottom: 12px; background: #fff; }
+  .status-ok { color: #16794a; font-weight: 600; }
+  .status-fail { color: #b81e1e; font-weight: 600; }
+  .tab-pane-scroll { max-height: 65vh; overflow-y: auto; }
+
+  #alert-container:empty::after, #desc-container:empty::after, .filters-container:empty::after {
+    content: 'Nessun elemento aggiunto.';
+    display: block;
+    color: #888;
+    font-style: italic;
+    font-size: .85rem;
+    margin-bottom: 8px;
+  }
+/* titolo chiaro sulla testata scura (il tema Prosit colora i titoli in scuro) */
+.app-header h1, .app-header .h5 { color: #fff; }
+.app-header h1 [class^="icon-"] { background-image: url("../../../../assets/css/images/glyphicons-halflings-white.png"); }

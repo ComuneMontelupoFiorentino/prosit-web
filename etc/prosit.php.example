@@ -1,0 +1,26 @@
+<?php
+/**
+ * local/prosit.php — impostazioni di QUESTA macchina (leggibile solo dal proprietario e da www-data).
+ * Sovrascrive config/defaults.php: indicare solo cio' che cambia.
+ * Generato da install.sh; modificabile a mano. (Con installazione da root: /etc/prosit/.)
+ */
+return [
+    'debug' => false,
+
+    'auth' => [
+        // Cartella www di Lizmap vista da Apache. Usare il collegamento, non la cartella
+        // con la versione: /var/www/html/lizmap (oggi) o /var/www/lizmap-attiva/www.
+        'lizmap_www' => '__LIZMAP_WWW__',
+        // Utente e gruppi: li dice Lizmap (Prosit API v2). Solo se Lizmap e' su un altro indirizzo:
+        // 'lizmap_api' => ['url' => 'http://127.0.0.1/lizmap/api.php/prosit/v2/auth/me'],
+    ],
+
+    'security' => [
+        // Altri indirizzi da cui si usa Lizmap (oltre a quello della richiesta)
+        'allowed_origins' => [/* 'https://gis.comune.montelupo-fiorentino.fi.it' */],
+    ],
+
+    'rekla' => [
+        'base_url' => 'http://10.0.35.1/',
+    ],
+];

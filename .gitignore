@@ -1,0 +1,6 @@
+# configurazione e segreti della macchina (modelli in etc/*.example)
+/local/
+# log, cache e dati (collegamento a /srv/data/prosit)
+/var
+*.log
+*.bak*

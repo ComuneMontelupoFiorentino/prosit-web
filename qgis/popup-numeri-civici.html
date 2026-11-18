@@ -1,0 +1,57 @@
+<!--
+  POPUP QGIS - layer dei numeri civici (esempio di popup "solo QGIS", senza scheda esterna)
+  Nessun CSS qui: l'aspetto viene da prosit-components.css, caricato da Prosit in tutte le mappe.
+  - le righe con valore vuoto si nascondono da sole (niente CASE/if per i NULL)
+  - le sezioni con classe p-auto spariscono se non hanno nessun valore
+-->
+<div class="p-card">
+  <div class="p-head">
+    <span class="p-title">Civico [% "acc_a_civico_comp" %]</span>
+    <span class="p-status">[% "acc_a_top_rif" %]</span>
+  </div>
+  <div class="p-body">
+
+    <details class="p-section" open>
+      <summary>Identificazione</summary>
+      <div class="p-field"><span class="p-label">Numero civico</span><span class="p-value">[% "acc_a_civico_comp" %]</span></div>
+      <div class="p-field"><span class="p-label">Strada di riferimento</span><span class="p-value">[% "acc_a_top_rif" %]</span></div>
+      <div class="p-field"><span class="p-label">Accesso</span><span class="p-value">[% "acc_a_ty" %]</span></div>
+      <div class="p-field"><span class="p-label">Tipologia di accesso</span><span class="p-value">[% "acc_a_ty_tipo" %]</span></div>
+      <div class="p-field"><span class="p-label">Passo carrabile</span><span class="p-value">[% if("acc_rif_aut_passo_car" = 'true', 'Sì', 'No') %]</span></div>
+      <div class="p-field"><span class="p-label">Piastrella presente</span><span class="p-value">[% if("acc_a_pias" = 'true', 'Sì', 'No') %]</span></div>
+    </details>
+
+    <details class="p-section" open>
+      <summary>Fotografia</summary>
+      [% if("acc_a_img" is null,
+            '<p class="p-empty">Nessuna fotografia</p>',
+            '<figure class="p-photo"><img src="' || "acc_a_img" || '" alt="Foto del civico"></figure>') %]
+    </details>
+
+    <details class="p-section p-auto">
+      <summary>Riferimenti catastali</summary>
+      <div class="p-field"><span class="p-label">Tipo</span><span class="p-value">[% "acc_rif_cat_ty" %]</span></div>
+      <div class="p-field"><span class="p-label">Foglio</span><span class="p-value">[% "acc_rif_cat_fog" %]</span></div>
+      <div class="p-field"><span class="p-label">Particella</span><span class="p-value">[% "acc_rif_cat_part" %]</span></div>
+      <div class="p-field"><span class="p-label">Sub</span><span class="p-value">[% "acc_rif_cat_sub" %]</span></div>
+    </details>
+
+    <details class="p-section p-auto">
+      <summary>Dati tecnici accessi carrabili</summary>
+      <div class="p-field"><span class="p-label">Morfologia</span><span class="p-value">[% "acc_dt_car_ty" %]</span></div>
+      <div class="p-field"><span class="p-label">Cancello automatico</span><span class="p-value">[% if("acc_dt_car_canc_aut" = 'true', 'Sì', if("acc_dt_car_canc_aut" is null, '', 'No')) %]</span></div>
+      <div class="p-field"><span class="p-label">Larghezza (m)</span><span class="p-value">[% "acc_dt_car_largh" %]</span></div>
+      <div class="p-field"><span class="p-label">Profondità (m)</span><span class="p-value">[% "acc_dt_car_prof" %]</span></div>
+    </details>
+
+    <details class="p-section">
+      <summary>Dati ANNCSU</summary>
+      <div class="p-field"><span class="p-label">Progressivo nazionale</span><span class="p-value">[% "progressivo_nazionale" %]</span></div>
+      <div class="p-field"><span class="p-label">Progressivo civico</span><span class="p-value">[% "progressivo_civico" %]</span></div>
+      <div class="p-field"><span class="p-label">Metodo</span><span class="p-value">3</span></div>
+      <div class="p-field"><span class="p-label">Sezione censimento</span><span class="p-value">[% "acc_a_sez_cens" %]</span></div>
+      <div class="p-field"><span class="p-label">Allineato</span><span class="p-value">[% "allineato" %]</span></div>
+    </details>
+
+  </div>
+</div>

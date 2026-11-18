@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <link rel="icon" href="../../assets/favicon/favicon.ico">
+  <title>Scheda manomissione suolo pubblico</title>
+  <link rel="stylesheet" href="../assets/prosit.css">
+</head>
+<body class="p-sheet">
+  <div id="app-loader" class="p-loader"><span class="p-spinner" aria-hidden="true"></span>Caricamento dati in corso…</div>
+  <div id="app-error" class="p-error" role="alert" hidden></div>
+
+  <main id="app-content" hidden>
+    <article class="p-card">
+      <header id="ticket-header" class="p-head">
+        <div class="p-toolbar">
+          <span id="header-alias" class="p-title"></span>
+          <button type="button" class="btn btn-small" data-action="print" title="Stampa"><i class="icon-print" aria-hidden="true"></i></button>
+          <button type="button" class="btn btn-small" data-action="reload" title="Aggiorna"><i class="icon-refresh" aria-hidden="true"></i></button>
+        </div>
+        <p id="header-status" class="p-status"></p>
+      </header>
+
+      <div class="p-body">
+        <p class="p-meta">Ultimo aggiornamento: <span id="update-date">—</span></p>
+        <h1 id="seg-title"></h1>
+
+        <details class="p-section" data-part="accettazione" open>
+          <summary>Accettazione</summary>
+          <div id="accettazione-fields"></div>
+        </details>
+
+        <details class="p-section" data-part="richiedente" open>
+          <summary>Richiedente</summary>
+          <div id="request-fields"></div>
+        </details>
+
+        <details id="impresa-details" class="p-section" data-part="impresa" hidden>
+          <summary>Impresa esecutrice</summary>
+          <div id="impresa-fields"></div>
+        </details>
+
+        <details class="p-section" data-part="intervento">
+          <summary>Intervento</summary>
+          <div id="intervento-fields"></div>
+        </details>
+
+        <details class="p-section" data-part="figure">
+          <summary>Figure responsabili</summary>
+          <div id="figure-fields"></div>
+        </details>
+
+        <details class="p-section" data-part="allegati">
+          <summary>Allegati (<span id="attach-count">0</span>)</summary>
+          <ul id="attach-list" class="p-files"></ul>
+        </details>
+
+        <details class="p-section" data-part="controlli">
+          <summary>Controlli</summary>
+          <div id="check-list"></div>
+        </details>
+      </div>
+    </article>
+  </main>
+
+  <script src="../assets/prosit.js"></script>
+  <script src="../assets/prosit-api-v2.js"></script>
+  <script src="manomissioni.js"></script>
+</body>
+</html>

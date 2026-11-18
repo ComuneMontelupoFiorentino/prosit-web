@@ -1,0 +1,325 @@
+/* ==========================================================================
+   PROSIT — tema unico
+   --------------------------------------------------------------------------
+   Base: la Bootstrap 2.3.2 GIA' servita da Lizmap (/lizmap/assets/css/bootstrap.min.css),
+   importata qui sotto: nessun altro framework CSS, nessuna CDN.
+   Sopra la base, in quest'ordine:
+     1. gettoni (colori, font, misure) in stile Bootstrap Italia
+     2. tema dei componenti Bootstrap 2 (pulsanti, campi, avvisi, modali, tabelle...)
+     3. COMPAT-BS5: le poche classi che Bootstrap 2 non ha, con i NOMI di Bootstrap 5
+        (griglia flex, form-control, badge bg-*, spaziature...). Quando Lizmap passera'
+        a Bootstrap 5 basta cambiare l'@import e cancellare la sezione 3:
+        le pagine non vanno riscritte.
+   Unico file da modificare per l'aspetto. Niente CSS dentro le pagine.
+   ========================================================================== */
+
+/* Bootstrap 2 di Lizmap: percorso relativo a questo file (/lizmap/prosit/assets/) */
+@import url("../../assets/css/bootstrap.min.css");
+/* linguaggio comune delle schede (lo stesso file che Lizmap carica per i popup QGIS) */
+@import url("prosit-components.css");
+
+/* ---------- Font locale ---------- */
+@font-face { font-family: "Titillium Web"; font-style: normal; font-weight: 300; font-display: swap; src: url(vendor/titillium/titillium-web-latin-300-normal.woff2) format("woff2"); }
+@font-face { font-family: "Titillium Web"; font-style: normal; font-weight: 400; font-display: swap; src: url(vendor/titillium/titillium-web-latin-400-normal.woff2) format("woff2"); }
+@font-face { font-family: "Titillium Web"; font-style: normal; font-weight: 600; font-display: swap; src: url(vendor/titillium/titillium-web-latin-600-normal.woff2) format("woff2"); }
+@font-face { font-family: "Titillium Web"; font-style: normal; font-weight: 700; font-display: swap; src: url(vendor/titillium/titillium-web-latin-700-normal.woff2) format("woff2"); }
+
+/* ==========================================================================
+   1. GETTONI
+   ========================================================================== */
+:root {
+  --p-font: "Titillium Web", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --p-bg: #f4f5f7;
+  --p-surface: #ffffff;
+  --p-surface-2: #fafbfc;
+  --p-text: #1c2024;
+  --p-muted: #5d7083;
+  --p-border: #c5c7c9;
+  --p-border-light: #dee2e6;
+  --p-primary: #0066cc;
+  --p-primary-strong: #004d99;
+  --p-primary-soft: #e6f0fa;
+  --p-heading: #005ca9;
+  --p-danger: #cc334d;
+  --p-warning: #995c00;
+  --p-success: #008055;
+  --p-neutral: #5d7083;
+  --p-radius: 12px;
+  --p-radius-sm: 4px;
+  --p-shadow: 0 8px 22px rgba(0, 0, 0, .06);
+  --p-focus: 0 0 0 3px rgba(255, 159, 0, .55);
+
+  /* stati dei ticket (testate e timeline) */
+  --st-accettata: #8a8a8a;
+  --st-convalidata: #c90002;
+  --st-assegnata: #ff3b02;
+  --st-presa-in-carico: #ff8102;
+  --st-programmata: #e0c200;
+  --st-eseguita: #8fb81f;
+  --st-completata: #1ea711;
+  --st-verificata-e-chiusa: #2e7d32;
+  --st-sospesa: #0066cc;
+  --st-annullata: #757575;
+}
+
+/* ==========================================================================
+   2. TEMA DEI COMPONENTI BOOTSTRAP 2 (aspetto Bootstrap Italia)
+   ========================================================================== */
+*, *::before, *::after { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body {
+  font-family: var(--p-font); font-size: 16px; line-height: 1.5; color: var(--p-text); background: var(--p-bg);
+}
+h1, h2, h3, h4, h5, h6 { font-family: var(--p-font); font-weight: 600; color: var(--p-text); line-height: 1.25; }
+h1 { font-size: 1.75rem; } h2 { font-size: 1.5rem; } h3 { font-size: 1.3rem; }
+h4 { font-size: 1.15rem; } h5 { font-size: 1.05rem; } h6 { font-size: 1rem; }
+a { color: var(--p-primary); }
+a:hover, a:focus { color: var(--p-primary-strong); }
+[hidden] { display: none !important; }
+:focus-visible { outline: none; box-shadow: var(--p-focus); }
+.container { width: auto; max-width: 1140px; padding: 0 16px; }
+.container-fluid { padding: 0 16px; }
+
+/* icone Glyphicons di Bootstrap 2: stesso file usato da Lizmap (map.css) */
+[class^="icon-"], [class*=" icon-"] { background-image: url("../../assets/css/images/glyphicons-halflings.png"); }
+.icon-white, .btn-primary [class^="icon-"], .btn-primary [class*=" icon-"],
+.btn-danger [class^="icon-"], .btn-danger [class*=" icon-"],
+.btn-success [class^="icon-"], .btn-success [class*=" icon-"] { background-image: url("../../assets/css/images/glyphicons-halflings-white.png"); }
+
+/* pulsanti: piatti, angoli 4px, semibold (come Bootstrap Italia) */
+.btn {
+  font-family: var(--p-font); font-size: 1rem; font-weight: 600; line-height: 1.5;
+  padding: .45rem 1.1rem; border-radius: var(--p-radius-sm);
+  background-image: none; text-shadow: none; box-shadow: none; filter: none;
+  border: 2px solid var(--p-border); background-color: #fff; color: var(--p-text);
+}
+.btn:hover, .btn:focus { background-color: #f0f2f4; color: var(--p-text); background-position: 0 0; }
+.btn:focus-visible { box-shadow: var(--p-focus); outline: none; }
+.btn.disabled, .btn[disabled] { opacity: .5; box-shadow: none; }
+.btn-primary { background-color: var(--p-primary); border-color: var(--p-primary); color: #fff; }
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active { background-color: var(--p-primary-strong); border-color: var(--p-primary-strong); color: #fff; }
+.btn-danger { background-color: var(--p-danger); border-color: var(--p-danger); color: #fff; }
+.btn-danger:hover, .btn-danger:focus { background-color: #a82a40; border-color: #a82a40; color: #fff; }
+.btn-success { background-color: var(--p-success); border-color: var(--p-success); color: #fff; }
+.btn-success:hover, .btn-success:focus { background-color: #006644; border-color: #006644; color: #fff; }
+.btn-warning { background-color: var(--p-warning); border-color: var(--p-warning); color: #fff; }
+.btn-info { background-color: var(--p-primary-soft); border-color: var(--p-primary-soft); color: var(--p-primary-strong); }
+.btn-link { border-color: transparent; background: transparent; color: var(--p-primary); }
+.btn-small, .btn-mini { font-size: .875rem; padding: .25rem .65rem; }
+.btn-large { font-size: 1.1rem; padding: .7rem 1.5rem; }
+.close { font-size: 1.6rem; line-height: 1; opacity: .5; text-shadow: none; }
+.close:hover { opacity: .9; }
+
+/* campi */
+label { font-weight: 600; font-size: .9rem; color: var(--p-text); margin-bottom: .25rem; }
+select, textarea, input[type="text"], input[type="password"], input[type="date"], input[type="datetime-local"],
+input[type="email"], input[type="number"], input[type="search"], input[type="tel"], input[type="url"] {
+  font-family: var(--p-font); font-size: 1rem; line-height: 1.5; height: auto; min-height: 2.5rem;
+  padding: .4rem .6rem; margin-bottom: 0; color: var(--p-text);
+  border: 1px solid var(--p-border); border-radius: var(--p-radius-sm); box-shadow: none;
+}
+textarea { min-height: 5rem; }
+select:focus, textarea:focus, input:focus { border-color: var(--p-primary); box-shadow: var(--p-focus); outline: none; }
+input[readonly], select[disabled], input[disabled] { background-color: #f1f3f5; }
+.help-block, .help-inline { color: var(--p-muted); font-size: .85rem; }
+
+/* etichette e badge di Bootstrap 2 */
+.label, .badge { font-family: var(--p-font); font-size: .8rem; font-weight: 600; text-shadow: none; padding: .2rem .55rem; line-height: 1.3; border-radius: var(--p-radius-sm); background-color: var(--p-neutral); }
+.badge { border-radius: 1rem; }
+.label-success, .badge-success { background-color: var(--p-success); }
+.label-warning, .badge-warning { background-color: var(--p-warning); }
+.label-important, .badge-important { background-color: var(--p-danger); }
+.label-info, .badge-info { background-color: var(--p-primary); }
+
+/* avvisi: fondo chiaro e bordo sinistro colorato */
+.alert { font-size: 1rem; text-shadow: none; color: var(--p-text); background: #fff8e6; border: 1px solid #f0d9a8; border-left: 6px solid var(--p-warning); border-radius: var(--p-radius-sm); padding: .75rem 1rem; }
+.alert-error, .alert-danger { background: #fff2f4; border-color: #f2c4cc; border-left-color: var(--p-danger); color: #7a1f2f; }
+.alert-success { background: #ebf7f2; border-color: #b8e0cf; border-left-color: var(--p-success); color: #0b4a33; }
+.alert-info { background: var(--p-primary-soft); border-color: #b3cfee; border-left-color: var(--p-primary); color: #0b3a6b; }
+
+/* tabelle */
+.table th { font-weight: 600; background: #f1f4f7; color: var(--p-text); }
+.table th, .table td { border-top-color: var(--p-border-light); padding: .5rem .6rem; vertical-align: middle; }
+.table-hover tbody tr:hover > td { background: var(--p-primary-soft); }
+
+/* schede (tabs) */
+.nav-tabs { border-bottom: 2px solid var(--p-border-light); }
+.nav-tabs > li > a { font-weight: 600; color: var(--p-muted); border-radius: var(--p-radius-sm) var(--p-radius-sm) 0 0; }
+.nav-tabs > .active > a, .nav-tabs > .active > a:hover { color: var(--p-primary); border-bottom-color: #fff; }
+
+/* modali (plugin Bootstrap 2 di Lizmap: $('#id').modal('show')) */
+.modal { border: 0; border-radius: 8px; box-shadow: 0 20px 50px rgba(0, 0, 0, .25); font-family: var(--p-font); }
+.modal .modal-dialog, .modal .modal-content { margin: 0; border: 0; }
+.modal-header { border-bottom: 1px solid var(--p-border-light); padding: .85rem 1.25rem; display: flex; align-items: center; gap: .5rem; }
+.modal-header h3, .modal-header .modal-title { margin: 0; font-size: 1.2rem; flex: 1; }
+.modal-header .close { margin: 0; order: 2; float: none; }
+.modal-body { max-height: 70vh; padding: 1rem 1.25rem; }
+.modal-footer { background: var(--p-surface-2); border-top: 1px solid var(--p-border-light); box-shadow: none; border-radius: 0 0 8px 8px; padding: .75rem 1.25rem; display: flex; justify-content: flex-end; gap: .5rem; flex-wrap: wrap; }
+.modal-footer .btn + .btn { margin-left: 0; }
+.modal.modal-lg { width: 800px; margin-left: -400px; }
+.modal.modal-xl { width: 1140px; margin-left: -570px; }
+@media (max-width: 1180px) { .modal.modal-xl { width: auto; left: 20px; right: 20px; margin-left: 0; } }
+@media (max-width: 840px)  { .modal.modal-lg { width: auto; left: 20px; right: 20px; margin-left: 0; } }
+/* pannello laterale: una modale Bootstrap 2 con classe p-side */
+.modal.p-side { top: 0 !important; bottom: 0; right: 0; left: auto; margin: 0; width: 420px; max-width: 100%; border-radius: 0; display: flex; flex-direction: column; }
+.modal.p-side.fade { right: -440px; transition: right .25s ease, opacity .15s linear; }
+.modal.p-side.fade.in { right: 0; }
+.modal.p-side .modal-body { max-height: none; flex: 1; overflow-y: auto; }
+.tooltip { font-family: var(--p-font); font-size: .85rem; }
+.well { background: var(--p-surface); border: 1px solid var(--p-border-light); border-radius: 8px; box-shadow: none; }
+
+/* indicatore di caricamento (Bootstrap 2 non lo ha) */
+.p-spinner, .spinner-border {
+  display: inline-block; width: 2rem; height: 2rem; vertical-align: middle;
+  border: .25em solid currentColor; border-right-color: transparent; border-radius: 50%;
+  animation: p-spin .75s linear infinite; color: var(--p-primary);
+}
+.spinner-border-sm, .p-spinner.sm { width: 1rem; height: 1rem; border-width: .2em; }
+@keyframes p-spin { to { transform: rotate(360deg); } }
+
+/* ==========================================================================
+   3. COMPAT-BS5 — classi di Bootstrap 5 che Bootstrap 2 non ha.
+      DA CANCELLARE quando Lizmap passa a Bootstrap 5.
+   ========================================================================== */
+/* griglia flex (sostituisce la .row a float di Bootstrap 2) */
+.row { display: flex; flex-wrap: wrap; margin-left: -.5rem; margin-right: -.5rem; }
+.row::before, .row::after { content: none; display: none; }
+.row > * { padding-left: .5rem; padding-right: .5rem; width: 100%; flex: 0 0 auto; }
+.col { flex: 1 0 0%; }
+.col-6 { width: 50%; } .col-12 { width: 100%; }
+@media (min-width: 576px) { .col-sm-4 { width: 33.3333%; } .col-sm-6 { width: 50%; } .col-sm-8 { width: 66.6667%; } }
+@media (min-width: 768px) {
+  .col-md-1 { width: 8.3333%; } .col-md-2 { width: 16.6667%; } .col-md-3 { width: 25%; } .col-md-4 { width: 33.3333%; }
+  .col-md-5 { width: 41.6667%; } .col-md-6 { width: 50%; } .col-md-8 { width: 66.6667%; } .col-md-9 { width: 75%; } .col-md-12 { width: 100%; }
+  .d-md-block { display: block !important; } .d-md-none { display: none !important; }
+}
+@media (min-width: 992px) { .col-lg-2 { width: 16.6667%; } .col-lg-3 { width: 25%; } }
+@media (min-width: 576px) { .d-sm-inline { display: inline !important; } .d-sm-none { display: none !important; } }
+
+/* flex e visualizzazione */
+.d-flex { display: flex !important; } .d-none { display: none !important; } .d-block { display: block !important; } .d-inline-block { display: inline-block !important; }
+.flex-wrap { flex-wrap: wrap; } .flex-column { flex-direction: column; } .flex-grow-1 { flex-grow: 1; }
+.align-items-center { align-items: center; } .align-items-start { align-items: flex-start; } .align-items-end { align-items: flex-end; } .align-middle { vertical-align: middle; }
+.justify-content-between { justify-content: space-between; } .justify-content-center { justify-content: center; } .justify-content-end { justify-content: flex-end; }
+.gap-1 { gap: .25rem; } .gap-2 { gap: .5rem; } .gap-3 { gap: 1rem; }
+.w-100 { width: 100% !important; }
+
+/* spaziature (scala 0,1,2,3,4,5 = 0, .25, .5, 1, 1.5, 3 rem) */
+.m-0{margin:0!important}.m-2{margin:.5rem!important}
+.mt-0{margin-top:0!important}.mt-1{margin-top:.25rem!important}.mt-2{margin-top:.5rem!important}.mt-3{margin-top:1rem!important}
+.mb-0{margin-bottom:0!important}.mb-1{margin-bottom:.25rem!important}.mb-2{margin-bottom:.5rem!important}.mb-3{margin-bottom:1rem!important}.mb-4{margin-bottom:1.5rem!important}
+.ms-1{margin-left:.25rem!important}.ms-auto{margin-left:auto!important}.me-1{margin-right:.25rem!important}.me-2{margin-right:.5rem!important}.me-auto{margin-right:auto!important}
+.my-3{margin-top:1rem!important;margin-bottom:1rem!important}
+.p-0{padding:0!important}.p-1{padding:.25rem!important}.p-2{padding:.5rem!important}.p-3{padding:1rem!important}
+.px-1{padding-left:.25rem!important;padding-right:.25rem!important}.px-2{padding-left:.5rem!important;padding-right:.5rem!important}.px-3{padding-left:1rem!important;padding-right:1rem!important}
+.py-2{padding-top:.5rem!important;padding-bottom:.5rem!important}.py-3{padding-top:1rem!important;padding-bottom:1rem!important}.py-4{padding-top:1.5rem!important;padding-bottom:1.5rem!important}.py-5{padding-top:3rem!important;padding-bottom:3rem!important}
+.pb-5{padding-bottom:3rem!important}
+
+/* testo */
+.text-muted { color: var(--p-muted) !important; } .text-end { text-align: right !important; } .text-center { text-align: center !important; }
+.text-primary { color: var(--p-primary) !important; } .text-danger { color: var(--p-danger) !important; }
+.text-success { color: var(--p-success) !important; } .text-warning { color: var(--p-warning) !important; }
+.text-secondary { color: var(--p-muted) !important; } .text-dark { color: var(--p-text) !important; } .text-reset { color: inherit !important; }
+.fw-bold { font-weight: 700 !important; } .small, small { font-size: .875em; }
+.h5 { font-size: 1.05rem; font-weight: 600; } .h6 { font-size: 1rem; font-weight: 600; }
+
+/* bordi e ombre */
+.border { border: 1px solid var(--p-border-light) !important; } .rounded { border-radius: 6px !important; }
+.shadow-sm { box-shadow: 0 1px 3px rgba(0, 0, 0, .12) !important; }
+.border-warning { border-color: var(--p-warning) !important; }
+
+/* moduli */
+.form-label { display: block; }
+.form-control, .form-select { display: block; width: 100%; max-width: 100%; background-color: #fff; }
+.form-control-sm, .form-select-sm { min-height: 2rem; padding: .2rem .5rem; font-size: .9rem; }
+.form-text { display: block; margin-top: .25rem; color: var(--p-muted); font-size: .85rem; }
+.form-check { display: flex; align-items: center; gap: .5rem; min-height: 1.5rem; }
+.form-check-input { margin: 0 !important; width: 1.1rem; height: 1.1rem; }
+.form-check-label { margin: 0; font-weight: 400; }
+.input-group { display: flex; align-items: stretch; width: 100%; }
+.input-group > .form-control { flex: 1 1 auto; width: 1%; border-radius: 0; }
+.input-group > :first-child { border-radius: var(--p-radius-sm) 0 0 var(--p-radius-sm) !important; }
+.input-group > :last-child { border-radius: 0 var(--p-radius-sm) var(--p-radius-sm) 0 !important; }
+.input-group-text { display: flex; align-items: center; padding: 0 .75rem; background: #f1f3f5; border: 1px solid var(--p-border); border-right: 0; }
+
+/* pulsanti aggiuntivi */
+.btn-sm { font-size: .875rem; padding: .25rem .65rem; }
+.btn-xs { font-size: .8rem; padding: .1rem .45rem; }
+.btn-secondary { background-color: var(--p-neutral); border-color: var(--p-neutral); color: #fff; }
+.btn-outline-primary { border-color: var(--p-primary); color: var(--p-primary); }
+.btn-outline-primary:hover { background-color: var(--p-primary); color: #fff; }
+.btn-outline-secondary { border-color: var(--p-border); color: var(--p-muted); }
+.btn-outline-danger { border-color: var(--p-danger); color: var(--p-danger); }
+.btn-outline-danger:hover { background-color: var(--p-danger); color: #fff; }
+.btn-outline-success { border-color: var(--p-success); color: var(--p-success); }
+.btn-outline-success:hover { background-color: var(--p-success); color: #fff; }
+.btn-group { display: inline-flex; }
+.btn-group > .btn { border-radius: 0; margin-left: -2px; }
+.btn-group > .btn:first-child { border-radius: var(--p-radius-sm) 0 0 var(--p-radius-sm); margin-left: 0; }
+.btn-group > .btn:last-child { border-radius: 0 var(--p-radius-sm) var(--p-radius-sm) 0; }
+
+/* badge colorati (in Bootstrap 2 sono .label-*) */
+.bg-success { background-color: var(--p-success) !important; color: #fff; }
+.bg-danger { background-color: var(--p-danger) !important; color: #fff; }
+.bg-warning { background-color: var(--p-warning) !important; color: #fff; }
+.bg-primary { background-color: var(--p-primary) !important; color: #fff; }
+.bg-secondary { background-color: var(--p-neutral) !important; color: #fff; }
+.text-bg-light { background-color: #f1f3f5 !important; color: var(--p-text) !important; }
+
+/* card e liste */
+.card { background: var(--p-surface); border: 1px solid var(--p-border-light); border-radius: 8px; }
+.card-body { padding: 1rem; }
+.list-group { list-style: none; margin: 0; padding: 0; border: 1px solid var(--p-border-light); border-radius: 6px; overflow: hidden; }
+.list-group-item { padding: .6rem .85rem; border-bottom: 1px solid var(--p-border-light); background: #fff; }
+.list-group-item:last-child { border-bottom: 0; }
+.list-group-item-warning { background: #fff8e6; }
+.table-responsive { overflow-x: auto; }
+.nav-tabs > .nav-item > .nav-link { display: block; padding: .5rem 1rem; margin-bottom: -2px; border: 1px solid transparent; border-radius: var(--p-radius-sm) var(--p-radius-sm) 0 0; background: none; font-family: var(--p-font); font-weight: 600; color: var(--p-muted); }
+.nav-tabs > .nav-item > .nav-link.active { color: var(--p-primary); background: #fff; border-color: var(--p-border-light) var(--p-border-light) #fff; }
+.font-monospace { font-family: SFMono-Regular, Consolas, "Liberation Mono", monospace !important; }
+.table-light th { background: #f1f4f7; }
+.visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+
+/* ==========================================================================
+   4. PAGINE DELLE SCHEDE ESTERNE
+      I componenti (.p-card, .p-head, .p-field, .p-timeline...) sono in
+      prosit-components.css, condiviso con i popup creati in QGIS.
+      Qui solo l'inquadratura della pagina.
+   ========================================================================== */
+body.p-sheet { background: var(--p-bg); padding: 1rem; }
+body.p-sheet .p-card { max-width: 900px; margin: 0 auto 1rem; border-radius: var(--p-radius); box-shadow: var(--p-shadow); }
+.p-loader { text-align: center; padding: 3rem 1rem; color: var(--p-muted); }
+.p-loader .p-spinner { display: block; margin: 0 auto .75rem; }
+.p-error {
+  max-width: 900px; margin: 1.5rem auto; padding: 1rem 1.25rem;
+  background: #fff2f4; border: 1px solid #f2c4cc; border-left: 6px solid var(--p-danger);
+  border-radius: var(--p-radius-sm); color: #7a1f2f;
+}
+.p-error a { color: inherit; font-weight: 600; }
+
+/* scheda incorporata in un popup QGIS (?embed=1): niente sfondo, margini ne' ombre */
+html.p-embed, html.p-embed body.p-sheet { background: transparent; padding: 0; }
+html.p-embed body.p-sheet .p-card { max-width: none; margin: 0; box-shadow: none; border: 0; border-radius: 0; background: transparent; }
+html.p-embed body.p-sheet .p-body { padding: 0; }
+html.p-embed body.p-sheet .p-body > .p-section:first-of-type { margin-top: .75rem; }
+html.p-embed .p-head [data-action] { display: none; }
+
+@media (max-width: 520px) {
+  body.p-sheet { padding: .5rem; }
+}
+@media print {
+  body.p-sheet { background: #fff; padding: 0; }
+  body.p-sheet .p-card { box-shadow: none; max-width: none; }
+  .btn, .p-no-print { display: none !important; }
+}
+
+/* ---------- catalogo dei componenti (schede/catalogo.html) ---------- */
+body.p-doc main { max-width: 980px; }
+body.p-doc h1 { color: var(--p-heading); margin: 1rem 0 .5rem; }
+.p-doc-item { background: #fff; border: 1px solid var(--p-border-light); border-radius: 10px; padding: 1rem 1.25rem; margin: 1rem 0; }
+.p-doc-item h2 { font-size: 1.2rem; margin: 0 0 .25rem; color: var(--p-heading); }
+.p-doc-live { max-width: 420px; margin: .75rem 0; }
+.p-doc-code { font-size: .8rem; background: #f6f8fa; border: 1px solid var(--p-border-light); border-radius: 6px; padding: .75rem; white-space: pre-wrap; }
+.p-doc-states { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: .5rem; }
+body.p-doc .p-doc-states .p-card, body.p-doc .p-doc-live .p-card { margin: 0; max-width: none; }
+.p-doc-rules { background: var(--p-primary-soft); border-left: 4px solid var(--p-primary); padding: .6rem .9rem; border-radius: 4px; }

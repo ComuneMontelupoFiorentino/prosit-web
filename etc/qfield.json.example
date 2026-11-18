@@ -1,0 +1,88 @@
+{
+  "_ATTENZIONE_log": "Percorso scrivibile da www-data (creato dall'installatore).",
+  "log_file": "__PROSIT__/var/log/qfield.log",
+  "_commento_clients": "WHITELIST: solo i token elencati qui sono accettati.",
+  "_nota_log_level": "normale = traccia le fasi. dettagliato = aggiunge una riga per ogni singolo file e i comandi eseguiti (utile per capire un problema, ma il log cresce in fretta).",
+  "log_level": "normale",
+  "clients": [
+    {
+      "id": "censimento-arboreo",
+      "token": "SOSTITUIRE-con-il-token-dell-app (stesso valore configurato nell app Android)",
+      "profile": "censimento_arboreo",
+      "enabled": true,
+      "note": "App Android censimento arboreo"
+    }
+  ],
+  "_commento_profiles": "PROFILI: cosa aspettarsi e dove depositarlo. 'destination' DEVE contenere {session_id}.",
+  "profiles": {
+    "censimento_arboreo": {
+      "_commento": "Un geopackage + fino a 150 immagini. min_count/max_count valgono per l'INTERA sessione, non per il singolo lotto.",
+      "_ATTENZIONE_destination": "Fuori da public/: i rilievi non sono scaricabili dal browser. Creata dall'installatore.",
+      "destination": "__PROSIT__/var/data/qfield/tmp/{client_id}/{anno}/{mese}/{data}_{session_id}",
+      "prefix_upload_id": false,
+      "overwrite": false,
+      "allow_extra_files": false,
+      "required_fields": [
+        "operatore",
+        "rilievo_id"
+      ],
+      "expected_files": [
+        {
+          "field": "dati",
+          "_nota": "Non piu' il geopackage: ora arriva il CSV estratto, poche decine di KB.",
+          "required": true,
+          "min_count": 1,
+          "max_count": 1,
+          "extensions": [
+            "csv"
+          ],
+          "max_size_mb": 10
+        },
+        {
+          "field": "immagini",
+          "_nota": "min_count 1 per coerenza con 'min_files: 1' nel config dell'app.",
+          "required": true,
+          "min_count": 1,
+          "max_count": 150,
+          "extensions": [
+            "jpg",
+            "jpeg",
+            "png",
+            "heic"
+          ],
+          "max_size_mb": 25,
+          "_nota_subfolder": "Le immagini vanno in una sottocartella loro: cosi' lo script di importazione copia SOLO le foto, non anche il CSV e le ricevute.",
+          "subfolder": "DCIM"
+        }
+      ]
+    }
+  },
+  "_commento_post_close": "ELABORAZIONE FINALE: parte solo a sessione completa e verificata. Viene eseguita UNA SOLA VOLTA per sessione (se un tentativo si ripete, il server la salta invece di duplicare i dati).",
+  "post_close": {
+    "enabled": true,
+    "script": "__PROSIT__/modules/qfield/importa_censimento.php",
+    "function": "importaCensimento",
+    "params": {
+      "_nota": "Segnaposto disponibili: {session_id} {client_id} {anno} {mese} {giorno} {data} {cartella}",
+      "csv_field": "dati",
+      "images_field": "immagini",
+      "zip_path": "__PROSIT__/var/data/qfield/zip/censimento-arboreo/{data}_{session_id}.zip",
+      "service": "cens_piante",
+      "media_folder": "censimento/{data}_{session_id}",
+      "campi_foto": [
+        "alb_foto1",
+        "alb_foto1a",
+        "alb_foto2",
+        "alb_foto3"
+      ],
+      "_ATTENZIONE_delimiter": "DEVE combaciare con 'delimiter' nel config dell'app E con quello che si aspetta sync.php. Se non combacia, l'import si ferma con un messaggio chiaro.",
+      "delimiter": ",",
+      "_ATTENZIONE_php_cli": "Sulla nuova VM PHP e' 8.2 (prima 8.1). Se vuoto viene cercato da solo: controllare in /health.",
+      "php_cli": "/usr/bin/php8.2",
+      "media_base": "/home/prosit2/lizmap-project/media/img",
+      "_nota_media_base": "Cartella dove '../media/img/...' dei progetti Lizmap porta davvero. Con Lizmap 3.9 i progetti stanno in /home/prosit2/lizmap-project/<repository>/: verificare e dare a www-data il permesso di scrittura (setfacl).",
+      "sync_script": "/usr/local/bin/prosit/UPSERT-sync-db2pgsql__trigger/sync.php"
+    },
+    "_nota_script": "Percorso del TUO file. La funzione dentro deve chiamarsi come indicato in 'function'. zip_semplice.php deve stare nella STESSA cartella (viene incluso con __DIR__)."
+  }
+}
